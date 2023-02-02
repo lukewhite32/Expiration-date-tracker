@@ -4,6 +4,8 @@
 #include <fstream>         // For file management
 #include <string.h>
 
+typedef std::to_string toString;
+
 class FoodManager {
     std::string names[10000];
     unsigned short dates[10000][3];                   // Nested array time!      
@@ -14,8 +16,8 @@ class FoodManager {
 
     short _dateGreaterThan(std::string date1, std::string date2) {            // 0 = both equal, 1 = date2 bigger, -1 = date1 bigger.
 
-        int d1[] = { std::stoi(date1.substr(0, date1.find("/"))), std::stoi(date1.substr(date1.find("/")+1, date1.find("~"))), std::stoi(date1.substr(date1.find("~")+1)) };
-        int d2[] = { std::stoi(date2.substr(0, date2.find("/"))), std::stoi(date2.substr(date2.find("/")+1, date2.find("~"))), std::stoi(date2.substr(date2.find("~")+1)) };
+        int d1[] = { toString(date1.substr(0, date1.find("/"))), toString(date1.substr(date1.find("/")+1, date1.find("~"))), toString(date1.substr(date1.find("~")+1)) };
+        int d2[] = { toString(date2.substr(0, date2.find("/"))), toString(date2.substr(date2.find("/")+1, date2.find("~"))), toString(date2.substr(date2.find("~")+1)) };
 
         short order[3] {2, 0, 1};
         for (int x : order) {
@@ -31,16 +33,16 @@ class FoodManager {
 
     std::string location(short num) {
         if (num < 5) {
-            return "A" + std::to_string(num);
+            return "A" + toString(num);
         }
         else if (num < 9) {
-            return "B" + std::to_string(num-4);
+            return "B" + toString(num-4);
         }
         else if (num < 13) {
-            return "C" + std::to_string(num-8);
+            return "C" + toString(num-8);
         }
         else {
-            return "D" + std::to_string(num-12);
+            return "D" + toString(num-12);
         }
         return "";
     }
@@ -72,7 +74,7 @@ class FoodManager {
                 }  
                 names[curLine] = line.substr(0, line.find("-"));
                 dateLine = line.substr(line.find("-")+1, line.find("/"));          // Where there's a hyphen, the rest is the dateline.
-                loc[curLine] = std::stoi(line.substr(line.find("/")+1));
+                loc[curLine] = toString(line.substr(line.find("/")+1));
 
                 if (dateLine == "??????") {                // This means that the expiration date is unknown
                     for (int x = 0; x < 3; x ++) {
@@ -84,7 +86,7 @@ class FoodManager {
                 else {
                     short parse = 0;
                     for (int x = 0; x < 3; x ++) {
-                        int tmpDate = std::stoi(dateLine.substr(parse, 2));
+                        int tmpDate = toString(dateLine.substr(parse, 2));
                         dates[curLine][x] = tmpDate;
                         parse += 2;
                     }
@@ -109,9 +111,9 @@ public:
         piper.close();
 
         names[length] = name;
-        dates[length][0] = std::stoi(month);
-        dates[length][1] = std::stoi(day);
-        dates[length][2] = std::stoi(year);
+        dates[length][0] = toString(month);
+        dates[length][1] = toString(day);
+        dates[length][2] = toString(year);
         loc[length] = group;
 
         length += 1;
@@ -141,8 +143,8 @@ public:
                 std::string compare1, compare2;
 
                 //std::cout << "compare 1: " << tmpDates[x][0] << ", " << tmpDates[x][1] << ", " << tmpDates[x][2] << std::endl;
-                compare1 = std::to_string(tmpDates[x][0]) + "/" + std::to_string(tmpDates[x][1]) + "~" + std::to_string(tmpDates[x][2]);
-                compare2 = std::to_string(tmpDates[x+1][0]) + "/" + std::to_string(tmpDates[x+1][1]) + "~" + std::to_string(tmpDates[x+1][2]);
+                compare1 = toString(tmpDates[x][0]) + "/" + toString(tmpDates[x][1]) + "~" + toString(tmpDates[x][2]);
+                compare2 = toString(tmpDates[x+1][0]) + "/" + toString(tmpDates[x+1][1]) + "~" + toString(tmpDates[x+1][2]);
 
                 if (_dateGreaterThan(compare1, compare2) == -1) {
                     int tmp[3];
@@ -156,7 +158,7 @@ public:
                 }
             }
             for (int x = 0; x < length-1; x ++) {
-                if (_dateGreaterThan(std::to_string(tmpDates[x][0]) + "/" + std::to_string(tmpDates[x][1]) + "~" + std::to_string(tmpDates[x][2]), std::to_string(tmpDates[x+1][0]) + "/" + std::to_string(tmpDates[x+1][1]) + "~" + std::to_string(tmpDates[x+1][2])) == -1) {
+                if (_dateGreaterThan(toString(tmpDates[x][0]) + "/" + toString(tmpDates[x][1]) + "~" + toString(tmpDates[x][2]), toString(tmpDates[x+1][0]) + "/" + toString(tmpDates[x+1][1]) + "~" + toString(tmpDates[x+1][2])) == -1) {
                     break;
                 }
                 if (x == length-2) {
@@ -165,11 +167,11 @@ public:
             }
         }
         for (int i = 0; i < length; i ++) {
-            theDates += std::to_string(tmpDates[i][0]); 
-            theDates += std::to_string(tmpDates[i][1]);
-            theDates += std::to_string(tmpDates[i][2]);
+            theDates += toString(tmpDates[i][0]); 
+            theDates += toString(tmpDates[i][1]);
+            theDates += toString(tmpDates[i][2]);
             theDates += "`";
-            theDates += std::to_string()
+            theDates += toString()
             if (length > 2 && i < length-1) {
                 theDates += "/";
             }
