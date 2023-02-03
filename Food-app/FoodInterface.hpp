@@ -33,6 +33,28 @@ class Interface {
         std::cout << "---------------------------------" << std::endl;
     }
 
+    void listItems() {
+        std::cout << "Name                    Expiration Date                    Group" << std::endl;
+        for (int x = 0; x < food_manager.length; x ++) {
+            std::cout << food_manager.names[x];
+            for (int x = 0; x < food_manager.names[x].length(); x ++) {
+                std::cout << " ";
+            }
+            std::cout << food_manager.stringize(std::to_string(food_manager.dates[x][0])) << "/" << food_manager.stringize(std::to_string(food_manager.dates[x][1]))
+               << "/" << food_manager.stringize(std::to_string(food_manager.dates[x][2]));
+            
+            std::cout << "            "  food_manager.location(food_manager.loc[x]) << std::endl;
+        }
+    }
+
+    void listItemsInOrder() {
+
+    }
+
+    void listExpired() {
+
+    }
+
     void add() {
         std::string name, mon, day, year, group;
         short g;
@@ -96,6 +118,11 @@ public:
             listItems();
         }
         else if (command == "remove item") {
+
+        }
+        else {
+            std::cout << "Command not recognized!" << std::endl;
+            help();
         }
     }
 };

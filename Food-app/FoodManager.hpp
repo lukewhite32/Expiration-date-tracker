@@ -3,7 +3,7 @@
 #include <fstream>         // For file management
 #include <string.h>
 
-class FoodManager {
+struct FoodManager {
     std::string names[10000];
     unsigned short dates[10000][3];                   // Nested array time!      
     short loc[10000];                              // 1 = A1, 2 = A2,... 5 = B1, 6 = B2, etc.
@@ -70,7 +70,6 @@ class FoodManager {
         return -1;
     }
 
-public:
     FoodManager() {
         _loadFile();
     }
