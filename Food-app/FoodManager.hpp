@@ -1,8 +1,5 @@
 /* Manages the files and all the food in it */
 
-#pragma once
-
-#include <iostream>
 #include <fstream>         // For file management
 #include <string.h>
 
@@ -22,7 +19,7 @@ class FoodManager {
                 std::getline(file, line);
                 len ++;
             }
-        } 
+        }
         file.close();
         return len;
     }
@@ -64,9 +61,33 @@ class FoodManager {
         file.close();                  // If the file doesn't close properly, you can't pipe data to the file (I found this out the hard way)
     }
 
+    int _findItem(std::string name, int startPoint = 0) {
+        for (int i = startPoint; i < length; i ++) {
+            if (names[i] == name) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
 public:
     FoodManager() {
         _loadFile();
+    }
+
+    short locId(std::string num) {
+        char ids[4] = {'A', 'B', 'C', 'D'};
+        short ret;
+
+        for (int i = 0; i < 4; i ++) {
+            if (num[0] == ids[i]) {
+                ret = (i*4);
+                break;
+            }
+        }
+
+        ret += std::stoi(num.substr(1));
+        return ret;
     }
 
     std::string location(short num) {
@@ -86,7 +107,6 @@ public:
     }
 
     short _dateGreaterThan(std::string date1, std::string date2) {            // 0 = both equal, 1 = date2 bigger, -1 = date1 bigger.
-
         int d1[] = { std::stoi(date1.substr(0, date1.find("/"))), std::stoi(date1.substr(date1.find("/")+1, date1.find("~"))), std::stoi(date1.substr(date1.find("~")+1)) };
         int d2[] = { std::stoi(date2.substr(0, date2.find("/"))), std::stoi(date2.substr(date2.find("/")+1, date2.find("~"))), std::stoi(date2.substr(date2.find("~")+1)) };
 
@@ -118,10 +138,18 @@ public:
         length += 1;
     }
 
-    void printDates() {
-        for (int x = 0; x < length; x ++) {
-            std::cout << "Name: " << names[x] << ", Exp: " << dates[x][0] << "/" << dates[x][1] << "/" << dates[x][2] << ", Group: " << location(loc[x]) << std::endl;
+    bool removeItem(std::string name, int index = 0) {
+        /*int loc = _findItem(name);
+        if (loc == -1) {
+            std::cout << "Couldn't find an item with this name!" << std::endl;
         }
+        else {
+            if (_findItem(name, loc) == -1) {
+                return false;
+            }
+            //std::copy(names + loc + 1, names + length, name);
+        }
+	return true;*/
     }
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'
@@ -153,7 +181,7 @@ public:
                     for (int i = 0; i < 3; i ++) {
                         tmpDates[x][i] = tmpDates[x+1][i];
                         tmpDates[x+1][i] = tmp[i];
-                    }   
+                    }
                 }
             }
             for (int x = 0; x < length-1; x ++) {

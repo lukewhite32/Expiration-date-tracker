@@ -8,6 +8,8 @@ bool notSorted() {return false;}
 void sort() {std::cout << "Sorting." << std::endl;}
 
 struct Tests {
+    int tests[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
     short _dateGreaterThan(std::string date1, std::string date2) {            // 0 = both equal, 1 = date2 bigger, -1 = date1 bigger.
 
         int d1[] = { std::stoi(date1.substr(0, date1.find("/"))), std::stoi(date1.substr(date1.find("/")+1, date1.find("~"))), std::stoi(date1.substr(date1.find("~")+1)) };
@@ -75,6 +77,10 @@ struct Tests {
             }
         }
         return theDates;
+    }
+
+    void del(int index) {
+
     }
 };
 

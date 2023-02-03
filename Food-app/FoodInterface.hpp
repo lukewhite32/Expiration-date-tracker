@@ -2,7 +2,6 @@
 
 #include "FoodManager.hpp"
 #include <ctime>
-#include <iostream>
 
 class Interface {
     FoodManager manager;
@@ -20,6 +19,42 @@ class Interface {
     strMon = std::to_string(mon);
     strDay = std::to_string(day);
 
+    std::string stringize(std::string num) {           // Turns '7' into '07'
+        if (std::stoi(num) < 10){
+            return "0" + num;
+        }
+        return num;
+    }
+
+    void help() {
+        std::cout << "---------------------------------"
+        std::cout << "\tList of commands:" << std::endl;
+        std::cout << "\nadd item: Brings up a menu for you\nto add an item.\nexp <days>: Prints out items that expire within that\ntime period." << std::endl;
+        std::cout << "---------------------------------" << std::endl;
+    }
+
+    void add() {
+        std::string name, mon, day, year, group;
+        short g;
+
+        std::cout << "Enter in the name (no '~' or '-):  ";
+        std::cin >> name;
+        std::cout << "Enter in the month:  ";
+        std::cin >> mon;
+        std::cout << "Enter in the day:  ";
+        std::cin >> day;
+        std::cout << "Enter in the year:  ";
+        std::cin >> year;
+        std::cout << "Enter in the group (i.e. A1, B3):  ";
+        std::cin >> group;
+
+        g = locId(group);
+        mon = stringize(mon);
+        day = stringize(day);
+        year = stringize(year);
+
+        manager.addItem(name, mon, day, year.substr(2), g);
+    }
 public:
     Interface() {
         if (mon < 10) {
@@ -34,5 +69,33 @@ public:
         return manager._dateGreaterThan(date, strMon + "/" + strDay + "~" + strYear) == 1;            // If the current date is greater than the "expired" date
     }
 
-    
+    std::string listen() {
+        std::string ret;   
+        std::cout << "-> ";
+        std::cin >> ret;
+        return ret;
+    }
+
+    void listExpired() {
+
+    }
+
+    void loop() {
+        std::string command = listen();
+
+        if (command == "help") {
+            help();
+        }
+        else if (command == "add item") {
+            add();
+        }
+        else if (command == "list expired") {
+            listExpired();
+        }
+        else if (command == "list items") {
+            listItems();
+        }
+        else if (command == "remove item") {
+        }
+    }
 };
