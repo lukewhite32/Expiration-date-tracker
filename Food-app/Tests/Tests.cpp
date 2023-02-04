@@ -82,6 +82,10 @@ struct Tests {
     void del(int index) {
 
     }
+    int getLength() {
+    std::string s = "Mac 'n' cheese";
+    return s.length();
+    }
 };
 
 int main() {
@@ -93,6 +97,11 @@ int main() {
     //std::cin >> dateNums[0][0] >> dateNums[0][1] >> dateNums[0][2] >> dateNums[1][0] >> dateNums[1][1] >> dateNums[1][2];
 
     std::cout << tests.sortDates() << std::endl;
-
+//while (1) {
+  //  std::cout << "Enter string: ";
+    //std::string s;
+    //std::cin >> s;
+    //std::cout << tests.getLength(s) << std::endl;
+//}
     return 0;
 }

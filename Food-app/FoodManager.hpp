@@ -125,7 +125,7 @@ struct FoodManager {
         std::ofstream piper;
         piper.open("Food-file.txt", std::ios::app);
 
-        piper << name << "-" << month.substr(0, 1) << month.substr(1, 1) << day.substr(0, 1) << day.substr(1, 1) << year.substr(0, 1) << year.substr(1, 1) << "/" << group << "\n"; 
+        piper << name << "-" << month.substr(0, 2) << day.substr(0, 2) << year.substr(0, 2) << "/" << group << "\n"; 
         piper.close();
 
         names[length] = name;
@@ -138,21 +138,14 @@ struct FoodManager {
     }
 
     bool removeItem(std::string name, int index = 0) {
-        /*int loc = _findItem(name);
-        if (loc == -1) {
-            std::cout << "Couldn't find an item with this name!" << std::endl;
+        for (int i = 0; i < length; i ++) {
+            return true;
         }
-        else {
-            if (_findItem(name, loc) == -1) {
-                return false;
-            }
-            //std::copy(names + loc + 1, names + length, name);
-        }
-	return true;*/
     }
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'
         bool over = false;
+        std::string tmpNames[length];
         int tmpDates[length][3];
         short tmpLocs[length];
         std::string theDates;
@@ -162,6 +155,7 @@ struct FoodManager {
                 tmpDates[x][y] = dates[x][y];
             }
             tmpLocs[x] = loc[x];
+            tmpNames[x] = names[x];
         }
 
         while (!over) {
@@ -193,6 +187,8 @@ struct FoodManager {
             }
         }
         for (int i = 0; i < length; i ++) {
+            theDates += tmpNames[i];
+            theDates += "*";
             theDates += std::to_string(tmpDates[i][0]); 
             theDates += std::to_string(tmpDates[i][1]);
             theDates += std::to_string(tmpDates[i][2]);
