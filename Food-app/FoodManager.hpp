@@ -74,6 +74,13 @@ struct FoodManager {
         _loadFile();
     }
 
+    std::string stringize(std::string num) {           // Turns '7' into '07'
+        if (std::stoi(num) < 10){
+            return "0" + num;
+        }
+        return num;
+    }
+
     short locId(std::string num) {
         char ids[4] = {'A', 'B', 'C', 'D'};
         short ret;
@@ -121,6 +128,15 @@ struct FoodManager {
         return 0;
     }
 
+    void writeToFile() {
+        std::ofstream file {"Food-file.txt"};
+
+        for (int x = 0; x < length; x ++) {
+            file << names[x] << "-" << stringize(std::to_string(dates[x][0])) << stringize(std::to_string(dates[x][1])) << stringize(std::to_string(dates[x][2])) << "/" << loc[x] << std::endl; 
+        }
+        file.close();
+    }
+
     void addItem(std::string name, std::string month, std::string day, std::string year, short group) {
         std::ofstream piper;
         piper.open("Food-file.txt", std::ios::app);
@@ -141,6 +157,7 @@ struct FoodManager {
         for (int i = 0; i < length; i ++) {
             if (names[i] == name) {
                 for (int x = i; x < length - i; x ++) {
+                    std::cout << names[x] << "is equaling to " << names[x+1] << std::endl;
                     names[x] = names[x+1];
                     dates[x][0] = dates[x+1][0];
                     dates[x][1] = dates[x+1][1];
@@ -203,7 +220,7 @@ struct FoodManager {
             theDates += std::to_string(tmpDates[i][2]);
             theDates += "`";
             theDates += std::to_string(tmpLocs[i]);
-            if (length > 2 && i < length-1) {
+            if (length > 2) {
                 theDates += "/";
             }
 

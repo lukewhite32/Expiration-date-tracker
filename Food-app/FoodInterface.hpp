@@ -18,13 +18,6 @@ class Interface {
     std::string strMon = std::to_string(mon);
     std::string strDay = std::to_string(day);
 
-    std::string stringize(std::string num) {           // Turns '7' into '07'
-        if (std::stoi(num) < 10){
-            return "0" + num;
-        }
-        return num;
-    }
-
     void listItems(bool inOrder = false) {
         std::cout << "\nName                    Expiration Date                    Group" << std::endl;
         std::cout << " ----------------------------------------------------------------" << std::endl;
@@ -52,13 +45,13 @@ class Interface {
                     parse ++;
                 }
                 parse ++;
-            
+
+                tmpDate = d.substr(0, 2) + d.substr(2, 2) + d.substr(4);
                 
                 while ((theItems[parse] != '/')) {
                     g += theItems[parse];
-                        parse ++;
+                    parse ++;
                 }
-                std::cout << "G is: " << g << std::endl;
                 
                 tmpGroup = std::stoi(g);
 
@@ -68,6 +61,8 @@ class Interface {
                 for (int y = 0; y < len; y ++) {
                     std::cout << " ";
                 }
+
+
                 parse ++;
                 std::cout << tmpDate << "                           " << manager.location(tmpGroup) << std::endl;
             }
@@ -79,8 +74,8 @@ class Interface {
                 for (int y = 0; y < len; y ++) {
                     std::cout << " ";
                 }
-                std::cout << stringize(std::to_string(manager.dates[x][0])) << "/" << stringize(std::to_string(manager.dates[x][1]))
-                   << "/" << stringize(std::to_string(manager.dates[x][2]));
+                std::cout << manager.stringize(std::to_string(manager.dates[x][0])) << "/" << manager.stringize(std::to_string(manager.dates[x][1]))
+                   << "/" << manager.stringize(std::to_string(manager.dates[x][2]));
             
                 std::cout << "                           "  << manager.location(manager.loc[x]) << std::endl;
             }
@@ -95,6 +90,9 @@ class Interface {
         std::string name;
         std::cout << "Enter the name for the item being deleted: ";
         std::getline(std::cin, name);
+        manager.removeItem(name);
+        manager.writeToFile();
+        std::cout << "Item '" << name << "' has been deleted!" << std::endl;
     }
 
     void add() {
@@ -102,20 +100,20 @@ class Interface {
         short g;
 
         std::cout << "Enter in the name (no '~' or '-):  ";
-        std::cin >> name;
+        std::getline(std::cin, name);
         std::cout << "Enter in the month:  ";
-        std::cin >> mon;
+        std::getline(std::cin, mon);
         std::cout << "Enter in the day:  ";
-        std::cin >> day;
+        std::getline(std::cin, day);
         std::cout << "Enter in the year:  ";
-        std::cin >> year;
+        std::getline(std::cin, year);
         std::cout << "Enter in the group (i.e. A1, B3):  ";
-        std::cin >> group;
+        std::getline(std::cin, group);
 
         g = manager.locId(group);
-        mon = stringize(mon);
-        day = stringize(day);
-        year = stringize(year);
+        mon = manager.stringize(mon);
+        day = manager.stringize(day);
+        year = manager.stringize(year);
 
         manager.addItem(name, mon, day, year.substr(year.length()-2), g);
         std::cout << "Item added!" << std::endl;
@@ -134,7 +132,6 @@ public:
         return manager._dateGreaterThan(date, strMon + "/" + strDay + "~" + strYear) == 1;            // If the current date is greater than the "expired" date
     }
 
-
     void help() {
         std::cout << "---------------------------------\n";
         std::cout << "\tList of commands:" << std::endl;
@@ -152,7 +149,6 @@ public:
     void loop() {
         std::string command = listen();
         
-
         if (command == "help") {
             help();
         }
@@ -180,7 +176,8 @@ public:
             system("clear");
         }
         else {
-            std::cout << "Command not recognized!" << std::endl;
+            std::cout << "Command not recognized!\n" << std::endl;
+            sleep(1);
             help();
         }
     }
