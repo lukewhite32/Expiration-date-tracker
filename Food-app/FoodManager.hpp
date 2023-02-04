@@ -137,9 +137,18 @@ struct FoodManager {
         length += 1;
     }
 
-    bool removeItem(std::string name, int index = 0) {
+    void removeItem(std::string name) {
         for (int i = 0; i < length; i ++) {
-            return true;
+            if (names[i] == name) {
+                for (int x = i; x < length - i; x ++) {
+                    names[x] = names[x+1];
+                    dates[x][0] = dates[x+1][0];
+                    dates[x][1] = dates[x+1][1];
+                    dates[x][2] = dates[x+1][2];
+                    loc[x] = loc[x+1];
+                }
+                return;
+            }
         }
     }
 

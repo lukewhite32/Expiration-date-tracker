@@ -52,10 +52,14 @@ class Interface {
                     parse ++;
                 }
                 parse ++;
+            
+                
                 while ((theItems[parse] != '/')) {
                     g += theItems[parse];
-                    parse ++;
+                        parse ++;
                 }
+                std::cout << "G is: " << g << std::endl;
+                
                 tmpGroup = std::stoi(g);
 
                 std::cout << tmpName;
@@ -85,6 +89,12 @@ class Interface {
 
     void listExpired() {
 
+    }
+
+    void remove() {
+        std::string name;
+        std::cout << "Enter the name for the item being deleted: ";
+        std::getline(std::cin, name);
     }
 
     void add() {
@@ -135,24 +145,24 @@ public:
     std::string listen() {
         std::string ret;   
         std::cout << "-> ";
-        std::cin >> ret;
+        std::getline(std::cin, ret);
         return ret;
     }
 
     void loop() {
         std::string command = listen();
+        
 
         if (command == "help") {
             help();
         }
-        else if (command == "add-item") {
+        else if (command == "add item") {
             add();
         }
         else if (command == "list expired") {
             listExpired();
         }
-        else if (command == "list-items") {
-            bool opt = false;
+        else if (command == "list items") {
             char ans;
             std::cout << "Would you like the dates in order?  ";
             std::cin >> ans;
@@ -164,7 +174,7 @@ public:
             }
         }
         else if (command == "remove item") {
-
+            remove();
         }
         else if (command == "clear") {
             system("clear");
