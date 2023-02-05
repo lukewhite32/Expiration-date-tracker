@@ -4,11 +4,10 @@
 #include <string.h>
 
 struct FoodManager {
-    std::string names[10000];
-    unsigned short dates[10000][3];                   // Nested array time!      
-    short loc[10000];                              // 1 = A1, 2 = A2,... 5 = B1, 6 = B2, etc.
-
     unsigned int length;              // The known length of the file
+    std::string names[10000];
+    int dates[10000][3];
+    short loc[10000];
 
     int _lengthOfFile() {
         std::ifstream file {"Food-file.txt"};
@@ -24,7 +23,7 @@ struct FoodManager {
         return len;
     }
 
-    void _loadFile() {
+    void _loadFile() {                             // 1 = A1, 2 = A2,... 5 = B1, 6 = B2, etc.
         std::ifstream file {"Food-file.txt"};
         unsigned long curLine = 0;
         std::string line, dateLine;
@@ -68,6 +67,16 @@ struct FoodManager {
             }
         }
         return -1;
+    }
+
+    int _amoumtOf(std::string n) {
+        int ret = 0;
+        for (int i = 0; i < length; i ++) {
+            if (names[i] == n) {
+                ret += 1;
+            }
+        }
+        return ret;
     }
 
     FoodManager() {
@@ -156,17 +165,21 @@ struct FoodManager {
     void removeItem(std::string name) {
         for (int i = 0; i < length; i ++) {
             if (names[i] == name) {
-                for (int x = i; x < length - i; x ++) {
-                    std::cout << names[x] << "is equaling to " << names[x+1] << std::endl;
+                for (int x = i; x < length - i-1; x ++) {
+                    if (length == 1) {
+                        return;
+                    }
                     names[x] = names[x+1];
                     dates[x][0] = dates[x+1][0];
                     dates[x][1] = dates[x+1][1];
                     dates[x][2] = dates[x+1][2];
                     loc[x] = loc[x+1];
                 }
+                length -= 1;
                 return;
             }
         }
+        std::cout << "Item '" << name << "' could not be found!" << std::endl;
     }
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'
@@ -194,6 +207,8 @@ struct FoodManager {
 
                 if (_dateGreaterThan(compare1, compare2) == -1) {
                     int tmp[3];
+                    short tl;
+                    std::string tn;
                     for (int i = 0; i < 3; i ++) {
                         tmp[i] = tmpDates[x][i];
                     }
@@ -201,6 +216,12 @@ struct FoodManager {
                         tmpDates[x][i] = tmpDates[x+1][i];
                         tmpDates[x+1][i] = tmp[i];
                     }
+                    tn = tmpNames[x];
+                    tmpNames[x] = tmpNames[x+1];
+                    tmpNames[x+1] = tn;
+                    tl = tmpLocs[x];
+                    tmpLocs[x] = tmpLocs[x+1];
+                    tmpLocs[x+1] = tl;
                 }
             }
             for (int x = 0; x < length-1; x ++) {
@@ -215,12 +236,12 @@ struct FoodManager {
         for (int i = 0; i < length; i ++) {
             theDates += tmpNames[i];
             theDates += "*";
-            theDates += std::to_string(tmpDates[i][0]); 
-            theDates += std::to_string(tmpDates[i][1]);
-            theDates += std::to_string(tmpDates[i][2]);
+            theDates += stringize(std::to_string(tmpDates[i][0])); 
+            theDates += stringize(std::to_string(tmpDates[i][1]));
+            theDates += stringize(std::to_string(tmpDates[i][2]));
             theDates += "`";
             theDates += std::to_string(tmpLocs[i]);
-            if (length > 2) {
+            if (length >= 2) {
                 theDates += "/";
             }
 

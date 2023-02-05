@@ -27,17 +27,24 @@ struct Tests {
         return 0;
     }
     int dates[20][3] = {{12, 34, 21}, {32, 23, 22}, {53, 21, 20}};
+    std::string names[20] = {"Unsweetened Corn", "Coconut Balls", "Help me"};
+    short locs[20] = {3, 5, 1};
     int length = 3;
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'
         bool over = false;
         int tmpDates[length][3];
+        std::string tmpNames[length];
+        short tmpLocs[length];
         std::string theDates;
 
-        for(int x = 0; x < length; x ++) {
+        for (int x = 0; x < length; x ++) {
             for (int y = 0; y < 3; y ++) {
                 tmpDates[x][y] = dates[x][y];
             }
+            tmpNames[x] = names[x];
+            tmpLocs[x] = locs[x];
+
         }
 
         while (!over) {
@@ -50,13 +57,21 @@ struct Tests {
 
                 if (_dateGreaterThan(compare1, compare2) == -1) {
                     int tmp[3];
+                    std::string tn;
+                    short tl;
                     for (int i = 0; i < 3; i ++) {
                         tmp[i] = tmpDates[x][i];
                     }
                     for (int i = 0; i < 3; i ++) {
                         tmpDates[x][i] = tmpDates[x+1][i];
                         tmpDates[x+1][i] = tmp[i];
-                    }   
+                    }
+                    tn = tmpNames[x];
+                    tmpNames[x] = tmpNames[x+1];
+                    tmpNames[x+1] = tn;
+                    tl = tmpLocs[x];
+                    tmpLocs[x] = tmpLocs[x+1];
+                    tmpLocs[x] = tl;   
                 }
             }
             for (int x = 0; x < length-1; x ++) {
@@ -69,9 +84,12 @@ struct Tests {
             }
         }
         for (int i = 0; i < length; i ++) {
+            theDates += tmpNames[i];
+            theDates += "%";
             theDates += std::to_string(tmpDates[i][0]); 
             theDates += std::to_string(tmpDates[i][1]);
             theDates += std::to_string(tmpDates[i][2]);
+            theDates += std::to_string(tmpLocs[i]);
             if (length > 2 && i < length-1) {
                 theDates += "/";
             }
