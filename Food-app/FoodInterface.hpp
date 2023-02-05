@@ -18,9 +18,21 @@ class Interface {
     std::string strMon = std::to_string(mon);
     std::string strDay = std::to_string(day);
 
-    void listItems(bool inOrder = false) {
+    bool isExpired(std::string date) {
+        return manager._dateGreaterThan(date, strMon + "/" + strDay + "~" + strYear) == 1;            // If the current date is greater than the "expired" date
+    }
+
+    void addDays(double amt) {
+        int monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+        day += amt;
+        if ()
+
+    }
+
+    void listItems(bool inOrder = false, bool expired = false) {
         std::cout << "\nName                                       Expiration Date                                 Group" << std::endl;
-        std::cout << "--------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         if (manager.length == 1) {
             std::cout << manager.names[0];
             for (int i = manager.names[0].length(); i < 45; i ++) {
@@ -67,18 +79,43 @@ class Interface {
                 }
                 tmpGroup = std::stoi(g);
                 parse ++;
-
-                std::cout << tmpName;
                 
-                int len = 43-tmpName.length();
-                for (int y = 0; y < len; y ++) {
-                    std::cout << " ";
+                if (!expired) {
+                    std::cout << tmpName;
+
+                    int len = 43-tmpName.length();
+                    for (int y = 0; y < len; y ++) {
+                        std::cout << " ";
+                    }
+
+                    if (tmpDate == "99/99/99") {
+                        std::cout << "????????";
+                    }
+                    else {
+                        std::cout << tmpDate;
+                    }
+                    std::cout << "                                        " << manager.location(tmpGroup) << std::endl;
+                    std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
                 }
+                else {
+                    if (tmpDate == "99/99/99") {
 
+                    }
+                    else {
+                        if (isExpired(tmpDate.substr(0, 2) + "/" + tmpDate.substr(3, 2) + "~" + tmpDate.substr(6))) {
+                            std::cout << tmpName;
 
-                std::cout << tmpDate << "                                    " << manager.location(tmpGroup) << std::endl;
+                            int len = 43-tmpName.length();
+                            for (int y = 0; y < len; y ++) {
+                                std::cout << " ";
+                            }
+
+                            std::cout << tmpDate << "                                        " << manager.location(tmpGroup) << std::endl;
+                            std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+                        }
+                    }
+                }
             }
-            std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         }
         else {
             for (int x = 0; x < manager.length; x ++) {
@@ -94,10 +131,6 @@ class Interface {
             }
         }
         std::cout << std::endl;
-    }
-
-    void listExpired() {
-
     }
 
     void remove() {
@@ -136,10 +169,12 @@ class Interface {
         std::cout << "Enter in the group (i.e. A1, B3):  ";
         std::getline(std::cin, group);
         
-        g = manager.locId(group);
-        mon = manager.stringize(mon);
-        day = manager.stringize(day);
-        year = manager.stringize(year);
+        if (mon != "??") {
+            g = manager.locId(group);
+            mon = manager.stringize(mon);
+            day = manager.stringize(day);
+            year = manager.stringize(year);
+        }
         
         for (int x = 0; x < std::stoi(quan); x ++) {
             manager.addItem(name, mon, day, year.substr(year.length()-2), g);
@@ -154,10 +189,6 @@ public:
         if (day < 10) {
             strDay = "0" + strDay;
         }
-    }
-
-    bool isExpired(std::string date) {
-        return manager._dateGreaterThan(date, strMon + "/" + strDay + "~" + strYear) == 1;            // If the current date is greater than the "expired" date
     }
 
     void help() {
@@ -182,7 +213,7 @@ public:
         }
         else if (command == "list expired") {
             system("clear");
-            listExpired();
+            listItems(true, true);
         }
         else if (command == "list items") {
             system("clear");
@@ -191,6 +222,13 @@ public:
         else if (command == "remove item") {
             system("clear");
             remove();
+        }
+        else if (command == "will expire") {
+            std::string a;
+            std::cout << "Enter a timespan (in days):  ";
+            std::getline(std::cin, a);
+
+            
         }
         else if (command == "clear") {
             system("clear");

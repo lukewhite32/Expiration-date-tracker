@@ -1,7 +1,9 @@
 /* Manages the files and all the food in it */
 
+
 #include <fstream>         // For file management
 #include <string.h>
+//#include "Helper.hpp"
 
 struct FoodManager {
     unsigned int length;              // The known length of the file
@@ -19,7 +21,6 @@ struct FoodManager {
                 len ++;
             }
         }
-        file.close();
         return len;
     }
 
@@ -35,10 +36,9 @@ struct FoodManager {
                     break;
                 }  
                 names[curLine] = line.substr(0, line.find("-"));
-                dateLine = line.substr(line.find("-")+1, line.find("/"));          // Where there's a hyphen, the rest is the dateline.
+                dateLine = line.substr(line.find("-")+1, line.find("/")-1);          // Where there's a hyphen, the rest is the dateline.
                 loc[curLine] = std::stoi(line.substr(line.find("/")+1));
-
-                if (dateLine == "??????") {                // This means that the expiration date is unknown
+                if (dateLine == "??????/" + std::to_string(loc[curLine])) {                // This means that the expiration date is unknown
                     for (int x = 0; x < 3; x ++) {
                         for (int y = 0; y < 2; y ++) {
                             dates[curLine][x] = 99;
@@ -47,9 +47,9 @@ struct FoodManager {
                 }
                 else {
                     short parse = 0;
-                    for (int x = 0; x < 3; x ++) {
+                    for (int y = 0; y < 3; y ++) {
                         int tmpDate = std::stoi(dateLine.substr(parse, 2));
-                        dates[curLine][x] = tmpDate;
+                        dates[curLine][y] = tmpDate;
                         parse += 2;
                     }
                 }
@@ -67,16 +67,6 @@ struct FoodManager {
             }
         }
         return -1;
-    }
-
-    int _amoumtOf(std::string n) {
-        int ret = 0;
-        for (int i = 0; i < length; i ++) {
-            if (names[i] == n) {
-                ret += 1;
-            }
-        }
-        return ret;
     }
 
     FoodManager() {
@@ -102,6 +92,16 @@ struct FoodManager {
         }
 
         ret += std::stoi(num.substr(1));
+        return ret;
+    }
+
+    int _amoumtOf(std::string name) {
+        int ret;
+        for (int x = 0; x < length; x ++) {
+            if (names[x] == name) {
+                ret ++;
+            }
+        }
         return ret;
     }
 
@@ -154,6 +154,13 @@ struct FoodManager {
         piper.close();
 
         names[length] = name;
+        if (month == "??") {
+            dates[length][0] = 99;
+            dates[length][1] = 99;
+            dates[length][2] = 99;
+            length += 1;
+            return;
+        }
         dates[length][0] = std::stoi(month);
         dates[length][1] = std::stoi(day);
         dates[length][2] = std::stoi(year);
@@ -204,7 +211,7 @@ struct FoodManager {
                 //std::cout << "compare 1: " << tmpDates[x][0] << ", " << tmpDates[x][1] << ", " << tmpDates[x][2] << std::endl;
                 compare1 = std::to_string(tmpDates[x][0]) + "/" + std::to_string(tmpDates[x][1]) + "~" + std::to_string(tmpDates[x][2]);
                 compare2 = std::to_string(tmpDates[x+1][0]) + "/" + std::to_string(tmpDates[x+1][1]) + "~" + std::to_string(tmpDates[x+1][2]);
-
+            
                 if (_dateGreaterThan(compare1, compare2) == -1) {
                     int tmp[3];
                     short tl;
