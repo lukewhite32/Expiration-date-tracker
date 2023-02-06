@@ -10,27 +10,64 @@ class Interface {
     time_t curr = time(0);
     tm* times = localtime(&curr);
 
-    double year = times -> tm_year + 1900;            // tm_year returns the year starting from 1900
-    double mon = times -> tm_mon + 1;           // Indexed at 0
-    double day = times -> tm_mday;
+    int monthDays[12] {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    long year = times -> tm_year + 1900;            // tm_year returns the year starting from 1900
+    int mon = times -> tm_mon + 1;           // Indexed at 0
+    int day = times -> tm_mday;
 
     std::string strYear = std::to_string(year).substr(2);
-    std::string strMon = std::to_string(mon);
-    std::string strDay = std::to_string(day);
+    std::string strMon = manager.stringize(std::to_string(mon));
+    std::string strDay = manager.stringize(std::to_string(day));
 
     bool isExpired(std::string date) {
         return manager._dateGreaterThan(date, strMon + "/" + strDay + "~" + strYear) == 1;            // If the current date is greater than the "expired" date
     }
 
+    void resetDates() {
+        year = times -> tm_year + 1900;
+        mon = times -> tm_mon + 1;
+        day = times -> tm_mday;
+
+        strYear = std::to_string(year).substr(2);
+        strMon = manager.stringize(std::to_string(mon));
+        strDay = manager.stringize(std::to_string(day));
+    }
+
     void addDays(double amt) {
-        int monthDays[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
         day += amt;
-        if ()
+        if (day > monthDays[mon-1]) {
+            day -= monthDays[mon-1];
+            mon ++;
+        }
+        if (mon > 12) {
+            year ++;
+            mon -= 12;
+        }
 
+        strYear = std::to_string(year).substr(2);
+        strMon = manager.stringize(std::to_string(mon));
+        strDay = manager.stringize(std::to_string(day));
+    }
+
+    void addMonths(int amt) {
+        mon += amt;
+        if (mon > 12) {
+            year ++;
+            mon -= 12;
+        }
+
+        strYear = std::to_string(year).substr(2);
+        strMon = manager.stringize(std::to_string(mon));
+        strDay = manager.stringize(std::to_string(day));
+    }
+
+    void addYears(int amt) {
+        year += amt;
     }
 
     void listItems(bool inOrder = false, bool expired = false) {
+        unsigned int amtOItems = 0;
         std::cout << "\nName                                       Expiration Date                                 Group" << std::endl;
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         if (manager.length == 1) {
@@ -38,7 +75,9 @@ class Interface {
             for (int i = manager.names[0].length(); i < 45; i ++) {
                 std::cout << " ";
             }
+            amtOItems ++;
             std::cout << manager.stringize(std::to_string(manager.dates[0][0])) << "/" << manager.stringize(std::to_string(manager.dates[0][1])) << "/" << manager.stringize(std::to_string(manager.dates[0][2])) << "                                          " <<  manager.location(manager.loc[0]) << "\n" << std::endl;
+            std::cout << "\nListing " << amtOItems << " items." << std::endl;
             return;
         }
         else if (manager.length == 0) {
@@ -48,9 +87,6 @@ class Interface {
 
         if (inOrder) {
             int parse, tmpGroup;
-            if (manager.length < 2) {
-                
-            }
             std::string d, g;
             std::string tmpName, tmpDate;
             std::string theItems = manager.sortDates();
@@ -81,6 +117,7 @@ class Interface {
                 parse ++;
                 
                 if (!expired) {
+                    amtOItems ++;
                     std::cout << tmpName;
 
                     int len = 43-tmpName.length();
@@ -103,6 +140,7 @@ class Interface {
                     }
                     else {
                         if (isExpired(tmpDate.substr(0, 2) + "/" + tmpDate.substr(3, 2) + "~" + tmpDate.substr(6))) {
+                            amtOItems ++;
                             std::cout << tmpName;
 
                             int len = 43-tmpName.length();
@@ -116,6 +154,7 @@ class Interface {
                     }
                 }
             }
+            std::cout << std::endl << "Listing " << amtOItems << " items." << std::endl;
         }
         else {
             for (int x = 0; x < manager.length; x ++) {
@@ -194,7 +233,7 @@ public:
     void help() {
         std::cout << "--------------------------------------------------\n";
         std::cout << "\tList of commands:" << std::endl;
-        std::cout << "\nadd item: Adds an item.\n\nlist items: Sorts and prints out all items in the file.\n\nremove item: Removes an item from the file.\n" << std::endl;
+        std::cout << "\nadd item: Adds an item.\n\nlist items: Sorts and prints out all items in the file.\n\nremove item: Removes an item from the file.\n\nlist expired: Lists all expired items.\n\nwill expire: Shows items expiring in a certain\namount of time.\n " << std::endl;
         std::cout << "--------------------------------------------------" << std::endl;
     }
 
@@ -213,10 +252,12 @@ public:
         }
         else if (command == "list expired") {
             system("clear");
+            resetDates();
             listItems(true, true);
         }
         else if (command == "list items") {
             system("clear");
+            resetDates();
             listItems(true);
         }
         else if (command == "remove item") {
@@ -224,11 +265,20 @@ public:
             remove();
         }
         else if (command == "will expire") {
-            std::string a;
+            std::string d, m, y;
             std::cout << "Enter a timespan (in days):  ";
-            std::getline(std::cin, a);
+            std::getline(std::cin, d);
+            std::cout << "Enter a timespan (in months):  ";
+            std::getline(std::cin, m);
+            std::cout << "Enter a timespan (in years):  ";
+            std::getline(std::cin, y);
+            addDays(std::stoi(d));
+            addMonths(std::stoi(m));
+            addYears(std::stoi(y));
 
-            
+            system("clear");
+
+            listItems(true, true);
         }
         else if (command == "clear") {
             system("clear");
