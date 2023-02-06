@@ -1,5 +1,7 @@
 /* Manages the files and all the food in it */
 
+#ifndef MANAGER_HPP
+#define MANAGER_HPP
 
 #include <fstream>         // For file management
 #include <string.h>
@@ -256,3 +258,4 @@ struct FoodManager {
         return theDates;
     }
 };
+#endif
