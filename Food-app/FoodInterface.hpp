@@ -1,6 +1,14 @@
 #pragma once
 
+#ifndef MANAGER_HPP
+
 #include "FoodManager.hpp"
+
+#endif
+
+#ifndef INTER_HPP
+#define INTER_HPP
+
 #include <ctime>
 #include <unistd.h>
 
@@ -291,3 +299,4 @@ public:
         }
     }
 };
+#endif
