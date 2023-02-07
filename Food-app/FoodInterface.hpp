@@ -1,9 +1,7 @@
 #pragma once
 
 #ifndef MANAGER_HPP
-
 #include "FoodManager.hpp"
-
 #endif
 
 #ifndef INTER_HPP
@@ -42,8 +40,8 @@ class Interface {
         strDay = manager.stringize(std::to_string(day));
     }
 
-    void addDays(double amt) {
-        day += amt;
+    void addToDate(double days, int months, int years) {
+        day += days;
         if (day > monthDays[mon-1]) {
             day -= monthDays[mon-1];
             mon ++;
@@ -56,10 +54,8 @@ class Interface {
         strYear = std::to_string(year).substr(2);
         strMon = manager.stringize(std::to_string(mon));
         strDay = manager.stringize(std::to_string(day));
-    }
 
-    void addMonths(int amt) {
-        mon += amt;
+        mon += months;
         if (mon > 12) {
             year ++;
             mon -= 12;
@@ -68,10 +64,8 @@ class Interface {
         strYear = std::to_string(year).substr(2);
         strMon = manager.stringize(std::to_string(mon));
         strDay = manager.stringize(std::to_string(day));
-    }
 
-    void addYears(int amt) {
-        year += amt;
+        year += years;
     }
 
     void listItems(bool inOrder = false, bool expired = false) {
@@ -255,15 +249,18 @@ public:
             help();
         }
         else if (command == "add item") {
+            manager._loadFile();
             system("clear");
             add();
         }
         else if (command == "list expired") {
+            manager._loadFile();
             system("clear");
             resetDates();
             listItems(true, true);
         }
         else if (command == "list items") {
+            manager._loadFile();
             system("clear");
             resetDates();
             listItems(true);
@@ -280,9 +277,7 @@ public:
             std::getline(std::cin, m);
             std::cout << "Enter a timespan (in years):  ";
             std::getline(std::cin, y);
-            addDays(std::stoi(d));
-            addMonths(std::stoi(m));
-            addYears(std::stoi(y));
+            addToDate(std::stoi(d), std::stoi(m), std::stoi(y));
 
             system("clear");
 
