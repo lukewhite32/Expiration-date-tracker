@@ -1,1 +1,2 @@
-g++ FoodMain.cpp && ./a.out
+g++ FoodMain.cpp
+./a.out

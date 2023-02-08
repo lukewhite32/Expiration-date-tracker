@@ -46,6 +46,7 @@ struct FoodManager {
                             dates[curLine][x] = 99;
                         }
                     }
+                    loc[curLine] = std::stoi(line.substr(line.find("/")+1));
                 }
                 else {
                     short parse = 0;
@@ -169,6 +170,8 @@ struct FoodManager {
         loc[length] = group;
 
         length += 1;
+
+        _loadFile();
     }
 
     void removeItem(std::string name) {
@@ -189,6 +192,8 @@ struct FoodManager {
             }
         }
         std::cout << "Item '" << name << "' could not be found!" << std::endl;
+        
+        writeToFile();
     }
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'
@@ -208,9 +213,8 @@ struct FoodManager {
 
         while (!over) {
             for (int x = 0; x < length-1; x ++) {
-                std::string compare1, compare2;
+                std::string compare1, compare2;              // Compare 2 date; the one at the index, and the one above it.
 
-                //std::cout << "compare 1: " << tmpDates[x][0] << ", " << tmpDates[x][1] << ", " << tmpDates[x][2] << std::endl;
                 compare1 = std::to_string(tmpDates[x][0]) + "/" + std::to_string(tmpDates[x][1]) + "~" + std::to_string(tmpDates[x][2]);
                 compare2 = std::to_string(tmpDates[x+1][0]) + "/" + std::to_string(tmpDates[x+1][1]) + "~" + std::to_string(tmpDates[x+1][2]);
             
