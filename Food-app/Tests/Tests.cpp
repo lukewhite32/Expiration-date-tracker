@@ -106,15 +106,79 @@ struct Tests {
     }
 };
 
+char nums[10] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+
+bool isInt(std::string num) {               // Checks if a string is a number or not
+    int counter;
+    for (int i = 0; i < num.length(); i ++) {
+        counter = 0;
+        for (int z = 0; z < 10; z ++) {
+            if (num[i] != nums[z]) {
+                counter ++;
+            }
+            else {
+                break;
+            }
+        }
+        if (!(counter < 10)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+std::string strSplit(std::string str, std::string stopPoint, int s) {                // Splits a string and returns whichever item in the list
+    std::string ret = "";
+    std::string tmp = "";
+    std::string comps[20];      
+    int current 0;
+    while (1) {          
+        for (int x = current; x < str.length(); x ++) {
+            for (int y = 0; y < stopPoint.length(); y ++) {
+                if (!(str[x+y] == stopPoint[y])) {        // check if reached stop point
+                    comps[y] == 
+                }
+                if (y == stopPoint.length()-1) {
+                    return ret;
+                }
+            }
+            tmp += str[x];
+        }
+    }
+    return ret;
+}
+
+std::string strCut(std::string str) {               // Makes "    Hello, world! " == "Hello, world! "
+    std::string ret;
+    int blankChars = 0; 
+    for (int x = 0; x < str.length(); x ++) {
+        std::cout << "xaminin '" << str[x] << "'." << std::endl;
+        if (str[x] != ' ') {
+            break;
+        }
+        blankChars ++; 
+    }
+    for (int x = blankChars; x < str.length(); x ++) {
+        ret += str[x];
+    }
+    return ret;
+}
+
 int main() {
     Tests tests;
+
+    std::cout << "enter str: ";
+    std::string r;
+    std::getline(std::cin, r);
+    std::cout << "trimmed is '" << strCut(r) << "'." << std::endl;
+
+
     //std::string dateNums[2][3];
     //std::string date1, date2;
 
     //std::cout << "Enter in 2 dates: ";
     //std::cin >> dateNums[0][0] >> dateNums[0][1] >> dateNums[0][2] >> dateNums[1][0] >> dateNums[1][1] >> dateNums[1][2];
 
-    std::cout << tests.sortDates() << std::endl;
 //while (1) {
   //  std::cout << "Enter string: ";
     //std::string s;

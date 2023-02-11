@@ -5,7 +5,7 @@
 
 #include <fstream>         // For file management
 #include <string.h>
-//#include "Helper.hpp"
+#include "Helper.hpp"
 
 struct FoodManager {
     unsigned int length;              // The known length of the file
@@ -37,16 +37,16 @@ struct FoodManager {
                 if (line == "") {               // If it's a blank line, it must be the end
                     break;
                 }  
-                names[curLine] = line.substr(0, line.find("-"));
-                dateLine = line.substr(line.find("-")+1, line.find("/")-1);          // Where there's a hyphen, the rest is the dateline.
-                loc[curLine] = std::stoi(line.substr(line.find("/")+1));
-                if (dateLine == "??????/" + std::to_string(loc[curLine])) {                // This means that the expiration date is unknown
+                names[curLine] = strUntil(line, "  ", 0);
+                dateLine = strUntil(line, "  ", names[curLine].length()+2);
+                loc[curLine] = std::stoi(strUntil(line, "  ", names[curLine].length() + 2 + dateLine.length() + 2));
+
+                if (dateLine == "??????/" + toStr(loc[curLine])) {                // This means that the expiration date is unknown
                     for (int x = 0; x < 3; x ++) {
                         for (int y = 0; y < 2; y ++) {
                             dates[curLine][x] = 99;
                         }
                     }
-                    loc[curLine] = std::stoi(line.substr(line.find("/")+1));
                 }
                 else {
                     short parse = 0;
@@ -60,7 +60,7 @@ struct FoodManager {
             }
             length = curLine;
         }
-        file.close();                  // If the file doesn't close properly, you can't pipe data to the file (I found this out the hard way)
+        file.close();                  // Memory stuff
     }
 
     int _findItem(std::string name, int startPoint = 0) {
@@ -76,28 +76,6 @@ struct FoodManager {
         _loadFile();
     }
 
-    std::string stringize(std::string num) {           // Turns '7' into '07'
-        if (std::stoi(num) < 10){
-            return "0" + num;
-        }
-        return num;
-    }
-
-    short locId(std::string num) {
-        char ids[4] = {'A', 'B', 'C', 'D'};
-        short ret;
-
-        for (int i = 0; i < 4; i ++) {
-            if (num[0] == ids[i]) {
-                ret = (i*4);
-                break;
-            }
-        }
-
-        ret += std::stoi(num.substr(1));
-        return ret;
-    }
-
     int _amoumtOf(std::string name) {
         int ret;
         for (int x = 0; x < length; x ++) {
@@ -108,26 +86,8 @@ struct FoodManager {
         return ret;
     }
 
-    std::string location(short num) {
-        if (num < 5) {
-            return "A" + std::to_string(num);
-        }
-        else if (num < 9) {
-            return "B" + std::to_string(num-4);
-        }
-        else if (num < 13) {
-            return "C" + std::to_string(num-8);
-        }
-        else {
-            return "D" + std::to_string(num-12);
-        }
-        return "";
-    }
-
     short _dateGreaterThan(std::string date1, std::string date2) {            // 0 = both equal, 1 = date2 bigger, -1 = date1 bigger.
-        int d1[] = { std::stoi(date1.substr(0, date1.find("/"))), std::stoi(date1.substr(date1.find("/")+1, date1.find("~"))), std::stoi(date1.substr(date1.find("~")+1)) };
-        int d2[] = { std::stoi(date2.substr(0, date2.find("/"))), std::stoi(date2.substr(date2.find("/")+1, date2.find("~"))), std::stoi(date2.substr(date2.find("~")+1)) };
-
+        int d1[] = {}
         short order[3] {2, 0, 1};
         for (int x : order) {
             if (d1[x] > d2[x]) {
@@ -144,7 +104,7 @@ struct FoodManager {
         std::ofstream file {"Food-file.txt"};
 
         for (int x = 0; x < length; x ++) {
-            file << names[x] << "-" << stringize(std::to_string(dates[x][0])) << stringize(std::to_string(dates[x][1])) << stringize(std::to_string(dates[x][2])) << "/" << loc[x] << std::endl; 
+            file << names[x] << "-" << zeroize(dates[x][0]) << zeroize(dates[x][1]) << zeroize(dates[x][2]) << "/" << loc[x] << std::endl; 
         }
         file.close();
     }
@@ -153,7 +113,7 @@ struct FoodManager {
         std::ofstream piper;
         piper.open("Food-file.txt", std::ios::app);
 
-        piper << name << "-" << month.substr(0, 2) << day.substr(0, 2) << year.substr(0, 2) << "/" << group << "\n"; 
+        piper << name << "  " << month.substr(0, 2) << day.substr(0, 2) << year.substr(0, 2) << "  " << group << "\n"; 
         piper.close();
 
         names[length] = name;
@@ -179,6 +139,7 @@ struct FoodManager {
             if (names[i] == name) {
                 for (int x = i; x < length - i-1; x ++) {
                     if (length == 1) {
+                        writeToFile();
                         return;
                     }
                     names[x] = names[x+1];
@@ -188,12 +149,11 @@ struct FoodManager {
                     loc[x] = loc[x+1];
                 }
                 length -= 1;
+                writeToFile();
                 return;
             }
         }
         std::cout << "Item '" << name << "' could not be found!" << std::endl;
-        
-        writeToFile();
     }
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'
@@ -215,8 +175,8 @@ struct FoodManager {
             for (int x = 0; x < length-1; x ++) {
                 std::string compare1, compare2;              // Compare 2 date; the one at the index, and the one above it.
 
-                compare1 = std::to_string(tmpDates[x][0]) + "/" + std::to_string(tmpDates[x][1]) + "~" + std::to_string(tmpDates[x][2]);
-                compare2 = std::to_string(tmpDates[x+1][0]) + "/" + std::to_string(tmpDates[x+1][1]) + "~" + std::to_string(tmpDates[x+1][2]);
+                compare1 = toStr(tmpDates[x][0]) + "  " + toStr(tmpDates[x][1]) + "  " + toStr(tmpDates[x][2]);
+                compare2 = toStr(tmpDates[x+1][0]) + "  " + toStr(tmpDates[x+1][1]) + "  " + toStr(tmpDates[x+1][2]);
             
                 if (_dateGreaterThan(compare1, compare2) == -1) {
                     int tmp[3];
@@ -238,7 +198,7 @@ struct FoodManager {
                 }
             }
             for (int x = 0; x < length-1; x ++) {
-                if (_dateGreaterThan(std::to_string(tmpDates[x][0]) + "/" + std::to_string(tmpDates[x][1]) + "~" + std::to_string(tmpDates[x][2]), std::to_string(tmpDates[x+1][0]) + "/" + std::to_string(tmpDates[x+1][1]) + "~" + std::to_string(tmpDates[x+1][2])) == -1) {
+                if (_dateGreaterThan(toStr(tmpDates[x][0]) + "/" + toStr(tmpDates[x][1]) + "~" + toStr(tmpDates[x][2]), toStr(tmpDates[x+1][0]) + "/" + toStr(tmpDates[x+1][1]) + "~" + toStr(tmpDates[x+1][2])) == -1) {
                     break;
                 }
                 if (x == length-2) {
@@ -249,17 +209,58 @@ struct FoodManager {
         for (int i = 0; i < length; i ++) {
             theDates += tmpNames[i];
             theDates += "*";
-            theDates += stringize(std::to_string(tmpDates[i][0])); 
-            theDates += stringize(std::to_string(tmpDates[i][1]));
-            theDates += stringize(std::to_string(tmpDates[i][2]));
+            theDates += zeroize(tmpDates[i][0]); 
+            theDates += zeroize(tmpDates[i][1]);
+            theDates += zeroize(tmpDates[i][2]);
             theDates += "`";
-            theDates += std::to_string(tmpLocs[i]);
+            theDates += toStr(tmpLocs[i]);
             if (length >= 2) {
                 theDates += "/";
             }
 
         }
         return theDates;
+    }
+
+    bool checkForKeyword(std::string name, int index) {          // This splits the string by blank spaces and check if one of the words matches
+        std::string tmps[10];               
+        int curTmp = 0;
+        std::string tt = "";
+        for (int i = 0; i < names[index].length(); i ++) {
+            //std::cout << "examining " << names[index] << " with a length of " << names[index].length() << ". the current char is '" << names[index][i] << "'" << std::endl;
+            if (names[index][i] == ' ') {
+                //std::cout << "the char '" << names[index][i] << "' was found to be ' '. Piping '" << tt << "' to tmps[" << i << "]" << std::endl;
+                tmps[curTmp] = tt;
+                curTmp ++;
+                tt = "";
+            }
+            else {
+                //std::cout << "the char '" << names[index][i] << "' was NOT found to be ' '. Adding '" << names[index][i] << "' to tt." << std::endl;
+
+                tt += names[index][i];
+            }
+        }
+        tmps[curTmp] = tt;
+        curTmp ++;
+        for (int zed = 0; zed < curTmp; zed ++) {
+            //std::cout << tmps[zed] << ", ";
+        }
+        //std::cout << std::endl;
+        for (int i = 0; i < curTmp; i ++) {
+            std::string comp;
+            //std::cout << curTmp << ", ";
+            //std::cout << tmps[i] << std::endl;
+            comp = capitalize(tmps[i][0]) + tmps[i].substr(1);
+            if (name == comp) {
+                return true;
+            }
+            comp = lowercase(tmps[i][0]) + tmps[i].substr(1);
+            
+            if (name == comp) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 #endif

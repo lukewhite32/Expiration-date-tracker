@@ -23,8 +23,8 @@ class Interface {
     int day = times -> tm_mday;
 
     std::string strYear = std::to_string(year).substr(2);
-    std::string strMon = manager.stringize(std::to_string(mon));
-    std::string strDay = manager.stringize(std::to_string(day));
+    std::string strMon = zeroize(mon);
+    std::string strDay = zeroize(day);
 
     bool isExpired(std::string date) {
         return manager._dateGreaterThan(date, strMon + "/" + strDay + "~" + strYear) == 1;            // If the current date is greater than the "expired" date
@@ -36,8 +36,8 @@ class Interface {
         day = times -> tm_mday;
 
         strYear = std::to_string(year).substr(2);
-        strMon = manager.stringize(std::to_string(mon));
-        strDay = manager.stringize(std::to_string(day));
+        strMon = zeroize(mon);
+        strDay = zeroize(day);
     }
 
     void addToDate(double days, int months, int years) {
@@ -52,8 +52,8 @@ class Interface {
         }
 
         strYear = std::to_string(year).substr(2);
-        strMon = manager.stringize(std::to_string(mon));
-        strDay = manager.stringize(std::to_string(day));
+        strMon = zeroize(mon);
+        strDay = zeroize(day);
 
         mon += months;
         if (mon > 12) {
@@ -62,8 +62,8 @@ class Interface {
         }
 
         strYear = std::to_string(year).substr(2);
-        strMon = manager.stringize(std::to_string(mon));
-        strDay = manager.stringize(std::to_string(day));
+        strMon = zeroize(mon);
+        strDay = zeroize(day);
 
         year += years;
     }
@@ -78,7 +78,7 @@ class Interface {
                 std::cout << " ";
             }
             amtOItems ++;
-            std::cout << manager.stringize(std::to_string(manager.dates[0][0])) << "/" << manager.stringize(std::to_string(manager.dates[0][1])) << "/" << manager.stringize(std::to_string(manager.dates[0][2])) << "                                          " <<  manager.location(manager.loc[0]) << "\n" << std::endl;
+            std::cout << zeroize(manager.dates[0][0]) << "/" << zeroize(manager.dates[0][1]) << "/" << zeroize(manager.dates[0][2]) << "                                          " <<  locationStr(manager.loc[0]) << "\n" << std::endl;
             std::cout << "\nListing " << amtOItems << " items." << std::endl;
             return;
         }
@@ -133,7 +133,7 @@ class Interface {
                     else {
                         std::cout << tmpDate;
                     }
-                    std::cout << "                                        " << manager.location(tmpGroup) << std::endl;
+                    std::cout << "                                        " << locationStr(tmpGroup) << std::endl;
                     std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
                 }
                 else {
@@ -150,7 +150,7 @@ class Interface {
                                 std::cout << " ";
                             }
 
-                            std::cout << tmpDate << "                                        " << manager.location(tmpGroup) << std::endl;
+                            std::cout << tmpDate << "                                        " << locationStr(tmpGroup) << std::endl;
                             std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
                         }
                     }
@@ -165,10 +165,10 @@ class Interface {
                 for (int y = 0; y < len; y ++) {
                     std::cout << " ";
                 }
-                std::cout << manager.stringize(std::to_string(manager.dates[x][0])) << "/" << manager.stringize(std::to_string(manager.dates[x][1]))
-                   << "/" << manager.stringize(std::to_string(manager.dates[x][2]));
+                std::cout << zeroize(manager.dates[x][0]) << "/" << zeroize(manager.dates[x][1])
+                   << "/" << zeroize(manager.dates[x][2]);
             
-                std::cout << "                                        "  << manager.location(manager.loc[x]) << std::endl;
+                std::cout << "                                        "  << locationStr(manager.loc[x]) << std::endl;
             }
         }
         std::cout << std::endl;
@@ -199,28 +199,88 @@ class Interface {
         
         std::cout << "\nEnter in the name:  ";
         std::getline(std::cin, name);
+
         std::cout << "Enter in the quantity:  ";
         std::getline(std::cin, quan);
+        while (!isInt(quan)) {
+            std::cout << "Invalid quantity!" << std::endl;
+            sleep(1);
+            std::cout << "Enter in the quantity:  ";
+            std::getline(std::cin, quan);
+        }
+
         std::cout << "Enter in the month:  ";
         std::getline(std::cin, mon);
+        while (!isInt(mon)) {
+            std::cout << "Invalid month!" << std::endl;
+            sleep(1);
+            std::cout << "Enter in the month:  ";
+            std::getline(std::cin, mon);
+        }
+
         std::cout << "Enter in the day:  ";
         std::getline(std::cin, day);
+        while (!isInt(day)) {
+            std::cout << "Invalid day!" << std::endl;
+            sleep(1);
+            std::cout << "Enter in the day:  ";
+            std::getline(std::cin, day);           
+        }
+
         std::cout << "Enter in the year:  ";
         std::getline(std::cin, year);
+        while (!isInt(year)) {
+            std::cout << "Invalid year!" << std::endl;
+            std::cout << "Enter in the year:  ";
+            std::getline(std::cin, year);        
+        }
+        
         std::cout << "Enter in the group (i.e. A1, B3):  ";
         std::getline(std::cin, group);
-        
+
         if (mon != "??") {
-            g = manager.locId(group);
-            mon = manager.stringize(mon);
-            day = manager.stringize(day);
-            year = manager.stringize(year);
+            g = locationId(group);
+            mon = zeroize(std::stoi(mon));
+            day = zeroize(std::stoi(day));
+            year = zeroize(std::stoi(year));
         }
         
         for (int x = 0; x < std::stoi(quan); x ++) {
             manager.addItem(name, mon, day, year.substr(year.length()-2), g);
         }
         std::cout << "Item(s) added!" << std::endl;
+    }
+
+    void search() {
+        std::string r;
+        std::cout << "Enter in a keyword: ";
+        std::getline(std::cin, r);
+        int total = 0;
+        std::cout << "\nName                                       Expiration Date                                 Group" << std::endl;
+        std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+        for (int l = 0; l < manager.length; l ++) {
+            if (manager.checkForKeyword(r, l)) {
+                //std::cout << "Keyword found" << std::endl;
+                total ++;
+                std::cout << manager.names[l];
+                int len = 43-r.length();
+                for (int y = 0; y < len; y ++) {
+                    std::cout << " ";
+                }
+                std::string tmpDate = zeroize(manager.dates[l][0]) + "/" + zeroize(manager.dates[l][1]) + "/" + zeroize(manager.dates[l][2]);
+                if (tmpDate == "99/99/99") {
+                    std::cout << "????????";
+                }
+                else {
+                    std::cout << tmpDate;
+                }
+                std::cout << "                                        " << locationStr(manager.loc[l]) << std::endl;
+                std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+            }
+        }
+        if (total == 0) {
+            std::cout << "No items to show!" << std::endl;
+        }
     }
 public:
     Interface() {
@@ -285,6 +345,9 @@ public:
         }
         else if (command == "clear") {
             system("clear");
+        }
+        else if (command == "search items") {
+            search();
         }
         else {
             std::cout << "Command not recognized!\n" << std::endl;
