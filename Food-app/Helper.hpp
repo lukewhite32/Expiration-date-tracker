@@ -24,16 +24,12 @@ bool isInt(std::string num) {               // Checks if a string is a number or
     return true;
 }
 
-std::string toStr(auto what) {
-    return std::to_string(what);
-}
-
 std::string zeroize(int num) {           // Turns '7' into '07'
     if (num < 10){
-        return "0" + num;
+        return "0" + std::to_string(num);
     }
-    return toStr(num);
-    }
+    return std::to_string(num);
+}
 
 char lowercase(char let) {
     int letloc;
@@ -82,16 +78,16 @@ short locationId(std::string num) {
 
 std::string locationStr(short num) {
     if (num < 5) {
-        return "A" + toStr(num);
+        return "A" + std::to_string(num);
     }
     else if (num < 9) {
-        return "B" + toStr(num-4);
+        return "B" + std::to_string(num-4);
     }
     else if (num < 13) {
-        return "C" + toStr(num-8);
+        return "C" + std::to_string(num-8);
     }
     else {
-        return "D" + toStr(num-12);
+        return "D" + std::to_string(num-12);
     }
     return "";
 }
@@ -100,7 +96,6 @@ std::string strCut(std::string str) {               // Makes "    Hello, world! 
     std::string ret;
     int blankChars = 0; 
     for (int x = 0; x < str.length(); x ++) {
-        std::cout << "xaminin '" << str[x] << "'." << std::endl;
         if (str[x] != ' ') {
             break;
         }

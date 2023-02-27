@@ -167,24 +167,22 @@ class Interface {
         std::getline(std::cin, name);
 
         std::cout << "Enter in the quantity:  ";
-        std::cin >> quan;
+        std::getline(std::cin, quan);
 
         std::cout << "Enter in the month:  ";
-        std::cin >> mon;
-        std::cout << "You entered '" << mon << "'." << std::endl;
+        std::getline(std::cin, mon);
 
         std::cout << "Enter in the day:  ";
-        std::cin >> day;
+        std::getline(std::cin, day);
 
         std::cout << "Enter in the year:  ";
-        std::cin >> year;
+        std::getline(std::cin, year);
         
         std::cout << "Enter in the group (i.e. A1, B3):  ";
         std::cin >> group;
 
         if (mon != "??") {
             g = locationId (group);
-            std::cout << "This is mon: '" << mon << "'; zeroized is '" << zeroize  (std::stoi(mon)) << std::endl;
             mon = zeroize  (std::stoi(mon));
             day = zeroize  (std::stoi(day));
             year = zeroize (std::stoi(year));

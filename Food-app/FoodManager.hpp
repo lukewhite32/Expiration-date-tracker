@@ -171,8 +171,8 @@ struct FoodManager {
             for (int x = 0; x < length-1; x ++) {
                 std::string compare1, compare2;              // Compare 2 date; the one at the index, and the one above it.
 
-                compare1 = toStr(tmpDates[x][0]) + "  " + toStr(tmpDates[x][1]) + "  " + toStr(tmpDates[x][2]);
-                compare2 = toStr(tmpDates[x+1][0]) + "  " + toStr(tmpDates[x+1][1]) + "  " + toStr(tmpDates[x+1][2]);
+                compare1 = std::to_string(tmpDates[x][0]) + "  " + std::to_string(tmpDates[x][1]) + "  " + std::to_string(tmpDates[x][2]);
+                compare2 = std::to_string(tmpDates[x+1][0]) + "  " + std::to_string(tmpDates[x+1][1]) + "  " + std::to_string(tmpDates[x+1][2]);
             
                 if (_dateGreaterThan(compare1, compare2) == -1) {
                     int tmp[3];
@@ -194,8 +194,8 @@ struct FoodManager {
                 }
             }
             for (int x = 0; x < length-1; x ++) {
-                if (_dateGreaterThan(toStr(tmpDates[x][0])  +  "  " + toStr(tmpDates[x][1])  +  "  " + toStr(tmpDates[x][2]), 
-                                     toStr(tmpDates[x+1][0]) + "  " + toStr(tmpDates[x+1][1]) + "  " + toStr(tmpDates[x+1][2])) == -1) {
+                if (_dateGreaterThan(std::to_string(tmpDates[x][0])  +  "  " + std::to_string(tmpDates[x][1])  +  "  " + std::to_string(tmpDates[x][2]), 
+                                     std::to_string(tmpDates[x+1][0]) + "  " + std::to_string(tmpDates[x+1][1]) + "  " + std::to_string(tmpDates[x+1][2])) == -1) {
                     break;
                 }
                 if (x == length-2) {
@@ -212,11 +212,10 @@ struct FoodManager {
             theDates += "/";
             theDates += zeroize(tmpDates[i][2]);
             theDates += "  ";
-            theDates += toStr(tmpLocs[i]);
+            theDates += std::to_string(tmpLocs[i]);
             if (length >= 2) {
                 theDates += "  ";
             }
-
         }
         return theDates;
     }
