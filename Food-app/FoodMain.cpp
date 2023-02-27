@@ -1,5 +1,8 @@
 #include <iostream>
+
+#ifndef INTER_HPP
 #include "FoodInterface.hpp"
+#endif
 
 int main() {
     FoodManager food_manager;

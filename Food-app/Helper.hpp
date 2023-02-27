@@ -112,22 +112,53 @@ std::string strCut(std::string str) {               // Makes "    Hello, world! 
     return ret;
 }
 
-std::string strUntil(std::string str, std::string stopPoint, int s) {           // Reads a string until it reaches a spot, then returns it
-    std::string ret = "";
-    for (int x = s; x < str.length(); x ++) {
-        for (int y = 0; y < stopPoint.length(); y ++) {
-            if (!(str[x+y] == stopPoint[y])) {
+int splitAmt(std::string str, std::string splitPoint) {
+    int total = 1;
+    for (int x = 0; x < str.length(); x ++) {
+        for (int y = 0; y < splitPoint.length(); y ++) {
+            if (str[x+y] != splitPoint[y]) {
                 break;
             }
-            if (y == stopPoint.length()-1) {
-                return ret;
+            if (y == splitPoint.length()-1) {
+                total ++;
             }
         }
-        ret += str[x];
     }
-    return ret;
+    return total;
 }
 
-void printItem(std::string name, std::string date, int loc) {
+std::string strSplit(std::string str, std::string splitPoint, int s) {           // Splits a string and returns whatever index you want it to be
+    int total = -1;
+    std::string curr = "";
+    for (int x = 0; x < str.length(); x ++) {
+        for (int y = 0; y < splitPoint.length(); y ++) {
+            if (str[x+y] != splitPoint[y]) {
+                break;
+            }
+            if (y == splitPoint.length()-1) {
+                total ++;
+                x += splitPoint.length();
+                if (total == s) {
+                    return curr;
+                }
+                curr = "";
+            }
+        }
+        curr += str[x];
+    }
+    return curr;
+}
 
+void printItem(std::string name, int m, int d, int y, int loc) {
+    std::cout << name;
+    for (int x = name.length(); x < 43; x ++) {
+        std::cout << " ";
+    }
+    if (m == 99) {
+        std::cout << "?????????";
+    }
+    else {
+        std::cout << zeroize(m) << "/" << zeroize(d) << "/" << zeroize(y);
+    }
+    std::cout << "                                       " << locationStr(loc) << std::endl;
 }

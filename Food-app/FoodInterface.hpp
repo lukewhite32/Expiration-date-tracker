@@ -73,74 +73,40 @@ class Interface {
         std::cout << "\nName                                       Expiration Date                                 Group" << std::endl;
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         if (manager.length == 1) {
-            std::cout << manager.names[0];
-            for (int i = manager.names[0].length(); i < 45; i ++) {
-                std::cout << " ";
-            }
+            printItem(manager.names[0], manager.dates[0][0], manager.dates[0][1], manager.dates[0][2], manager.loc[0]);
             amtOItems ++;
-            std::cout << zeroize(manager.dates[0][0]) << "/" << zeroize(manager.dates[0][1]) << "/" << zeroize(manager.dates[0][2]) << "                                          " <<  locationStr(manager.loc[0]) << "\n" << std::endl;
             std::cout << "\nListing " << amtOItems << " items." << std::endl;
             return;
         }
-        else if (manager.length == 0) {
+        if (manager.length == 0) {
             std::cout << "No items in list!!!\n" << std::endl;
             return;
         } 
 
         if (inOrder) {
-            int parse, tmpGroup;
-            std::string d, g;
+            int currSplit = 0;
             std::string tmpName, tmpDate;
+            int tmpGroup;
             std::string theItems = manager.sortDates();
-            parse = 0;
-            for (int x = 0; x < manager.length; x ++) {
-                d = "";
-                g = "";
-                tmpName = "";
-                tmpDate = "";
-                while (!(theItems[parse] == '*')) {
-                    tmpName += theItems[parse];
-                    parse ++;
-                }
-                parse ++;
-                while ((theItems[parse] != '`')) {
-                    d += theItems[parse];
-                    parse ++;
-                }
-                parse ++;
-
-                tmpDate = d.substr(0, 2) + "/" + d.substr(2, 2) + "/" + d.substr(4);
-                
-                while ((theItems[parse] != '/')) {
-                    g += theItems[parse];
-                    parse ++;
-                }
-                tmpGroup = std::stoi(g);
-                parse ++;
-                
+            //parse = 0;
+            for (int x = 0; x < manager.length; x ++) { 
+                tmpName = strSplit(theItems, "  ", currSplit);
+                currSplit ++;
+                tmpDate = strSplit(theItems, "  ", currSplit);
+                currSplit ++;
+                tmpGroup = std::stoi(strSplit(theItems, "  ", currSplit));
+                currSplit ++;
                 if (!expired) {
                     amtOItems ++;
-                    std::cout << tmpName;
+                    int pm = std::stoi(strSplit(tmpDate, "/", 0));
+                    int pd = std::stoi(strSplit(tmpDate, "/", 1));
+                    int py = std::stoi(strSplit(tmpDate, "/", 2));
 
-                    int len = 43-tmpName.length();
-                    for (int y = 0; y < len; y ++) {
-                        std::cout << " ";
-                    }
-
-                    if (tmpDate == "99/99/99") {
-                        std::cout << "????????";
-                    }
-                    else {
-                        std::cout << tmpDate;
-                    }
-                    std::cout << "                                        " << locationStr(tmpGroup) << std::endl;
+                    printItem(tmpName, pm, pd, py, tmpGroup);
                     std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
                 }
                 else {
-                    if (tmpDate == "99/99/99") {
-
-                    }
-                    else {
+                    if (tmpDate != "99/99/99") {
                         if (isExpired(tmpDate.substr(0, 2) + "/" + tmpDate.substr(3, 2) + "~" + tmpDate.substr(6))) {
                             amtOItems ++;
                             std::cout << tmpName;
@@ -195,58 +161,43 @@ class Interface {
 
     void add() {
         std::string name, quan, mon, day, year, group;
-        short g;
+        int g;
         
         std::cout << "\nEnter in the name:  ";
         std::getline(std::cin, name);
 
         std::cout << "Enter in the quantity:  ";
-        std::getline(std::cin, quan);
-        while (!isInt(quan)) {
-            std::cout << "Invalid quantity!" << std::endl;
-            sleep(1);
-            std::cout << "Enter in the quantity:  ";
-            std::getline(std::cin, quan);
-        }
+        std::cin >> quan;
 
         std::cout << "Enter in the month:  ";
-        std::getline(std::cin, mon);
-        while (!isInt(mon)) {
-            std::cout << "Invalid month!" << std::endl;
-            sleep(1);
-            std::cout << "Enter in the month:  ";
-            std::getline(std::cin, mon);
-        }
+        std::cin >> mon;
+        std::cout << "You entered '" << mon << "'." << std::endl;
 
         std::cout << "Enter in the day:  ";
-        std::getline(std::cin, day);
-        while (!isInt(day)) {
-            std::cout << "Invalid day!" << std::endl;
-            sleep(1);
-            std::cout << "Enter in the day:  ";
-            std::getline(std::cin, day);           
-        }
+        std::cin >> day;
 
         std::cout << "Enter in the year:  ";
-        std::getline(std::cin, year);
-        while (!isInt(year)) {
-            std::cout << "Invalid year!" << std::endl;
-            std::cout << "Enter in the year:  ";
-            std::getline(std::cin, year);        
-        }
+        std::cin >> year;
         
         std::cout << "Enter in the group (i.e. A1, B3):  ";
-        std::getline(std::cin, group);
+        std::cin >> group;
 
         if (mon != "??") {
-            g = locationId(group);
-            mon = zeroize(std::stoi(mon));
-            day = zeroize(std::stoi(day));
-            year = zeroize(std::stoi(year));
+            g = locationId (group);
+            std::cout << "This is mon: '" << mon << "'; zeroized is '" << zeroize  (std::stoi(mon)) << std::endl;
+            mon = zeroize  (std::stoi(mon));
+            day = zeroize  (std::stoi(day));
+            year = zeroize (std::stoi(year));
+        }
+        else {
+            mon = "99";
+            day = "99";
+            year = "99";
         }
         
         for (int x = 0; x < std::stoi(quan); x ++) {
-            manager.addItem(name, mon, day, year.substr(year.length()-2), g);
+            std::cout << "Adding item: " << name << ", mon=" << mon << ", day=" << day << ", year=" << year << ", g=" << g << std::endl;
+            manager.addItem(name, std::stoi(mon), std::stoi(day), std::stoi(year.substr(year.length()-2)), g);
         }
         std::cout << "Item(s) added!" << std::endl;
     }
