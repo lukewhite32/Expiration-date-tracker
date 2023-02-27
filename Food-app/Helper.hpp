@@ -155,5 +155,6 @@ void printItem(std::string name, int m, int d, int y, int loc) {
     else {
         std::cout << zeroize(m) << "/" << zeroize(d) << "/" << zeroize(y);
     }
-    std::cout << "                                       " << locationStr(loc) << std::endl;
+    std::cout << "                                          " << locationStr(loc) << std::endl;
+    std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
 }

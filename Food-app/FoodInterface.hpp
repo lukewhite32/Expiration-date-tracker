@@ -27,7 +27,7 @@ class Interface {
     std::string strDay = zeroize(day);
 
     bool isExpired(std::string date) {
-        return manager._dateGreaterThan(date, strMon + "/" + strDay + "~" + strYear) == 1;            // If the current date is greater than the "expired" date
+        return manager._dateGreaterThan(date, strMon + "  " + strDay + "  " + strYear) == 1;            // If the current date is greater than the "expired" date
     }
 
     void resetDates() {
@@ -103,11 +103,10 @@ class Interface {
                     int py = std::stoi(strSplit(tmpDate, "/", 2));
 
                     printItem(tmpName, pm, pd, py, tmpGroup);
-                    std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
                 }
                 else {
                     if (tmpDate != "99/99/99") {
-                        if (isExpired(tmpDate.substr(0, 2) + "/" + tmpDate.substr(3, 2) + "~" + tmpDate.substr(6))) {
+                        if (isExpired(tmpDate.substr(0, 2) + "  " + tmpDate.substr(3, 2) + "  " + tmpDate.substr(6))) {
                             amtOItems ++;
                             std::cout << tmpName;
 
@@ -122,7 +121,7 @@ class Interface {
                     }
                 }
             }
-            std::cout << std::endl << "Listing " << amtOItems << " items." << std::endl;
+            std::cout << std::endl << "Listing " << amtOItems << " item(s)" << std::endl;
         }
         else {
             for (int x = 0; x < manager.length; x ++) {
@@ -179,7 +178,7 @@ class Interface {
         std::getline(std::cin, year);
         
         std::cout << "Enter in the group (i.e. A1, B3):  ";
-        std::cin >> group;
+        std::getline(std::cin, group);
 
         if (mon != "??") {
             g = locationId (group);
@@ -194,7 +193,6 @@ class Interface {
         }
         
         for (int x = 0; x < std::stoi(quan); x ++) {
-            std::cout << "Adding item: " << name << ", mon=" << mon << ", day=" << day << ", year=" << year << ", g=" << g << std::endl;
             manager.addItem(name, std::stoi(mon), std::stoi(day), std::stoi(year.substr(year.length()-2)), g);
         }
         std::cout << "Item(s) added!" << std::endl;
@@ -209,26 +207,15 @@ class Interface {
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         for (int l = 0; l < manager.length; l ++) {
             if (manager.checkForKeyword(r, l)) {
-                //std::cout << "Keyword found" << std::endl;
                 total ++;
-                std::cout << manager.names[l];
-                int len = 43-r.length();
-                for (int y = 0; y < len; y ++) {
-                    std::cout << " ";
-                }
-                std::string tmpDate = zeroize(manager.dates[l][0]) + "/" + zeroize(manager.dates[l][1]) + "/" + zeroize(manager.dates[l][2]);
-                if (tmpDate == "99/99/99") {
-                    std::cout << "????????";
-                }
-                else {
-                    std::cout << tmpDate;
-                }
-                std::cout << "                                        " << locationStr(manager.loc[l]) << std::endl;
-                std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+                printItem(manager.names[l], manager.dates[l][0], manager.dates[l][1], manager.dates[l][2], manager.loc[1]);
             }
         }
         if (total == 0) {
             std::cout << "No items to show!" << std::endl;
+        }
+        else {
+            std::cout << std::endl << "Listing " << total << " item(s)" << std::endl << std::endl;
         }
     }
 public:

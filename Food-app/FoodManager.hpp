@@ -221,22 +221,13 @@ struct FoodManager {
     }
 
     bool checkForKeyword(std::string name, int index) {          // Checks for a keyword in a name
-        std::string tmps[splitAmt(name, " ")];               
-        int curTmp = 0;
-        std::string tt = "";
-        for (int i = 0; i < names[index].length(); i ++) {
-            if (names[index][i] == ' ') {
-                tmps[curTmp] = tt;
-                curTmp ++;
-                tt = "";
-            }
-            else {
-                tt += names[index][i];
-            }
+        std::string tmps[splitAmt(names[index], " ")];
+
+        for (int i = 0; i < splitAmt(names[index], " "); i ++) {
+            tmps[i] = strSplit(names[index], " ", i);
         }
-        tmps[curTmp] = tt;
-        curTmp ++;
-        for (int i = 0; i < curTmp; i ++) {
+
+        for (int i = 0; i < splitAmt(names[index], " "); i ++) {
             std::string comp;
             comp = capitalize(tmps[i][0]) + tmps[i].substr(1);
             if (name == comp) {
