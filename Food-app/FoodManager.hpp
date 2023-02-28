@@ -115,7 +115,7 @@ struct FoodManager {
         std::ofstream piper;
         piper.open("Food-file.txt", std::ios::app);
 
-        piper << name << "  " << zeroize(month) << zeroize(day) << zeroize(year) << "  " << group << "\n"; 
+        piper << name << "  " << zeroize(month) << zeroize(day) << zeroize(year) << "  " << group << std::endl; 
         piper.close();
 
         names[length] = name;

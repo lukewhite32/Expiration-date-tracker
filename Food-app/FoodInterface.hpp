@@ -70,16 +70,16 @@ class Interface {
 
     void listItems(bool inOrder = false, bool expired = false) {
         unsigned int amtOItems = 0;
-        std::cout << "\nName                                       Expiration Date                                 Group" << std::endl;
+        std::cout << std::endl << "Name                                       Expiration Date                                 Group" << std::endl;
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         if (manager.length == 1) {
             printItem(manager.names[0], manager.dates[0][0], manager.dates[0][1], manager.dates[0][2], manager.loc[0]);
             amtOItems ++;
-            std::cout << "\nListing " << amtOItems << " items." << std::endl;
+            std::cout << std::endl << "Listing " << amtOItems << " items." << std::endl;
             return;
         }
         if (manager.length == 0) {
-            std::cout << "No items in list!!!\n" << std::endl;
+            std::cout << "No items in list!!!" << std::endl << std::endl;
             return;
         } 
 
@@ -144,12 +144,13 @@ class Interface {
 
         if (manager.getAmtUniqueTypes(name) > 1) {
             std::string uniqueDates[manager.getAmtUniqueTypes(name)];
-            std::cout << "\nThere are multiple kinds of that item. Select which item to delete." << std::endl << std::endl;
+            std::cout << std::endl << "There are multiple kinds of that item. Select which item to delete." << std::endl << std::endl;
             for (int i = 0; i < manager.getAmtUniqueTypes(name); i ++) {
                 std::cout << "(" << i << ")" << "  " << name << ": " << manager.getUniqueDatesFromName(name, i) << std::endl;
                 uniqueDates[i] = manager.getUniqueDatesFromName(name, i);
             }
-            int resp = std::stoi(getLine("\nEnter in the one to edit: "));
+            std::cout << std::endl;
+            int resp = std::stoi(getLine("Enter in the one to edit: "));
             while (resp > manager.getAmtUniqueTypes(name) || resp < 0) {
                 std::cout << "Invalid option!" << std::endl;
                 int resp = std::stoi(getLine("Enter in the one to edit: "));
@@ -170,7 +171,8 @@ class Interface {
         std::string name, quan, mon, day, year, group;
         int g;
         
-        name =  getLine("\nEnter in the name:  ");
+        std::cout << std::endl;
+        name =  getLine("Enter in the name:  ");
         quan =  getLine("Enter in the quantity:  ");
         mon =   getLine("Enter in the month: ");
         day =   getLine("Enter in the day: ");
@@ -201,7 +203,8 @@ class Interface {
         r = getLine("Enter in a keyword: ");
         int total = 0;
         system("clear");
-        std::cout << "\nName                                       Expiration Date                                 Group" << std::endl;
+        std::cout << std::endl;
+        std::cout << "Name                                       Expiration Date                                 Group" << std::endl;
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         for (int l = 0; l < manager.length; l ++) {
             if (manager.checkForKeyword(r, l)) {
@@ -227,16 +230,18 @@ public:
     }
 
     void help() {
-        std::cout << "--------------------------------------------------\n";
+        std::cout << "--------------------------------------------------" << std::endl;
         std::cout << "\tList of commands:" << std::endl;
-        std::cout << "\nadd item: Adds an item.\n\nlist items: Sorts and prints out all items in the file.\n\nremove item: Removes an item from the file.\n\nlist expired: Lists all expired items.\n\nwill expire: Shows items expiring in a certain\namount of time.\n " << std::endl;
+        std::cout << std::endl << "add item: Adds an item." <<
+        std::endl << std::endl << "list items: Sorts and prints out all items in the file." <<
+        std::endl << std::endl << "remove item: Removes an item from the file." << 
+        std::endl << std::endl << "list expired: Lists all expired items." << 
+        std::endl << std::endl << "will expire: Shows items expiring in a certain" << std::endl << "amount of time." << std::endl;
         std::cout << "--------------------------------------------------" << std::endl;
     }
 
     void loop() {
-        std::string command;
-        std::cout << "-> ";
-        std::getline(std::cin, command);
+        std::string command = getLine("-> ");
 
         if (command == "help") {
             system("clear");
@@ -281,7 +286,7 @@ public:
             search();
         }
         else {
-            std::cout << "Command not recognized!\n" << std::endl;
+            std::cout << "Command not recognized!" << std::endl << std::endl;
             sleep(1);
             system("clear");
             help();
