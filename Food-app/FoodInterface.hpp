@@ -88,7 +88,6 @@ class Interface {
             std::string tmpName, tmpDate;
             int tmpGroup;
             std::string theItems = manager.sortDates();
-            //parse = 0;
             for (int x = 0; x < manager.length; x ++) { 
                 tmpName = strSplit(theItems, "  ", currSplit);
                 currSplit ++;
@@ -140,45 +139,43 @@ class Interface {
     }
 
     void remove() {
-        std::string name, q;
-        std::cout << "\nEnter the name for the item being deleted: ";
-        std::getline(std::cin, name);
-        std::cout << "Enter in the quantity of items to delete:  ";
-        std::getline(std::cin, q);
+        std::string name = getLine("Enter the name for the item to delete: ");
+        std::string q = getLine("Enter the amount of items to delete: ");
 
-        if (manager._amoumtOf(name) < std::stoi(q) ) {
-            std::cout << "Not enough of that item!" << std::endl;
+        if (manager.getAmtUniqueTypes(name) > 1) {
+            std::string uniqueDates[manager.getAmtUniqueTypes(name)];
+            std::cout << "\nThere are multiple kinds of that item. Select which item to delete." << std::endl << std::endl;
+            for (int i = 0; i < manager.getAmtUniqueTypes(name); i ++) {
+                std::cout << "(" << i << ")" << "  " << name << ": " << manager.getUniqueDatesFromName(name, i) << std::endl;
+                uniqueDates[i] = manager.getUniqueDatesFromName(name, i);
+            }
+            int resp = std::stoi(getLine("\nEnter in the one to edit: "));
+            while (resp > manager.getAmtUniqueTypes(name) || resp < 0) {
+                std::cout << "Invalid option!" << std::endl;
+                int resp = std::stoi(getLine("Enter in the one to edit: "));
+            }
+            for (int x = 0; x < std::stoi(q); x ++) {
+                manager.removeItem(name, uniqueDates[resp]);
+            }
         }
         else {
             for (int x = 0; x < std::stoi(q); x ++) {
-                manager.removeItem(name);
+                manager.removeItem(name, manager.getUniqueDatesFromName(name, 0));
             }
-            manager.writeToFile();
-            std::cout << "Item(s) '" << name << "' has/have been deleted!\n" << std::endl;
         }
+        std::cout << "Removed item(s) '" << name << "'!" << std::endl;
     }
 
     void add() {
         std::string name, quan, mon, day, year, group;
         int g;
         
-        std::cout << "\nEnter in the name:  ";
-        std::getline(std::cin, name);
-
-        std::cout << "Enter in the quantity:  ";
-        std::getline(std::cin, quan);
-
-        std::cout << "Enter in the month:  ";
-        std::getline(std::cin, mon);
-
-        std::cout << "Enter in the day:  ";
-        std::getline(std::cin, day);
-
-        std::cout << "Enter in the year:  ";
-        std::getline(std::cin, year);
-        
-        std::cout << "Enter in the group (i.e. A1, B3):  ";
-        std::getline(std::cin, group);
+        name =  getLine("\nEnter in the name:  ");
+        quan =  getLine("Enter in the quantity:  ");
+        mon =   getLine("Enter in the month: ");
+        day =   getLine("Enter in the day: ");
+        year =  getLine("Enter in the year: ");
+        group = getLine("Enter in the group (i.e. A1, B3):  ");
 
         if (mon != "??") {
             g = locationId (group);
@@ -187,6 +184,7 @@ class Interface {
             year = zeroize (std::stoi(year));
         }
         else {
+            g = locationId (group);
             mon = "99";
             day = "99";
             year = "99";
@@ -200,9 +198,9 @@ class Interface {
 
     void search() {
         std::string r;
-        std::cout << "Enter in a keyword: ";
-        std::getline(std::cin, r);
+        r = getLine("Enter in a keyword: ");
         int total = 0;
+        system("clear");
         std::cout << "\nName                                       Expiration Date                                 Group" << std::endl;
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         for (int l = 0; l < manager.length; l ++) {
@@ -246,12 +244,10 @@ public:
         }
         else if (command == "add item") {
             manager._loadFile();
-            system("clear");
             add();
         }
         else if (command == "list expired") {
             manager._loadFile();
-            system("clear");
             resetDates();
             listItems(true, true);
         }
@@ -262,7 +258,6 @@ public:
             listItems(true);
         }
         else if (command == "remove item") {
-            system("clear");
             remove();
         }
         else if (command == "will expire") {

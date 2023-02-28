@@ -130,9 +130,9 @@ struct FoodManager {
         _loadFile();
     }
 
-    void removeItem(std::string name) {
+    void removeItem(std::string name, std::string date) {
         for (int i = 0; i < length; i ++) {
-            if (names[i] == name) {
+            if (names[i] == name && (dates[i][0] == std::stoi(strSplit(date, "/", 0)) && dates[i][1] == std::stoi(strSplit(date, "/", 1)) && dates[i][2] == std::stoi(strSplit(date, "/", 2)))) {
                 for (int x = i; x < length - i-1; x ++) {
                     if (length == 1) {
                         writeToFile();
@@ -150,6 +150,41 @@ struct FoodManager {
             }
         }
         std::cout << "Item '" << name << "' could not be found!" << std::endl;
+    }
+
+    int getAmtUniqueTypes(std::string name) {
+        int uTypes = 0;
+        int tDates[3] = {0, 0, 0};
+        for (int x = 0; x < length; x ++) {
+            if (name == names[x]) {
+                if (!(dates[x][0] == tDates[0] && dates[x][1] == tDates[1] && dates[x][2] == tDates[2])) {
+                    uTypes ++;
+                    for (int y = 0; y < 3; y ++) {
+                        tDates[y] = dates[x][y];
+                    }
+                }
+            }
+        }
+        return uTypes;
+    }
+
+    std::string getUniqueDatesFromName(std::string name, int index) {
+        int curr = 0;
+        int tDates[3] = {0, 0, 0};
+        for (int x = 0; x < length; x ++) {
+            if (name == names[x]) {
+                if (!(dates[x][0] == tDates[0] && dates[x][1] == tDates[1] && dates[x][2] == tDates[2])) {
+                    if (curr == index) {
+                        return zeroize(dates[x][0]) + "/" + zeroize(dates[x][1]) + "/" + zeroize(dates[x][2]);
+                    }
+                    curr ++;
+                    for (int y = 0; y < 3; y ++) {
+                        tDates[y] = dates[x][y];
+                    }
+                }
+            }
+        }
+        return "";
     }
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'
