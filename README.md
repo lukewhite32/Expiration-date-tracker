@@ -4,7 +4,7 @@ dates and warn you if an item is about to expire!
 
 # How To Use
 
-Run ./build.sh at the terminal to compile then execute.
+Run ./run.sh at the terminal to compile then execute.
 It is entirely text-based and in C++ (as it should be.)
 
 Support for date sorting, adding items, removing items,
@@ -20,4 +20,4 @@ read, but you get the idea.
 Entirely written by me with some help from the internet.
 
 And no, I don't care if you use it. No copyright laws will
-sentence you to prison; in fact, I encourage you to use it.
+sentence you to prison (hopefully).
