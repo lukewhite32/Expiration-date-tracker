@@ -1,4 +1,9 @@
 #pragma once
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtrigraphs"
+
+#include <unistd.h>
+#include <ctime>
 
 #ifndef MANAGER_HPP
 #include "FoodManager.hpp"
@@ -7,65 +12,30 @@
 #ifndef INTER_HPP
 #define INTER_HPP
 
-#include <ctime>
-#include <unistd.h>
-
 class Interface {
     FoodManager manager;
 
     time_t curr = time(0);
     tm* times = localtime(&curr);
 
-    int monthDays[12] {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-    long year = times -> tm_year + 1900;            // tm_year returns the year starting from 1900
+    int year = times -> tm_year + 1900;            // tm_year returns the year starting from 1900
     int mon = times -> tm_mon + 1;           // Indexed at 0
     int day = times -> tm_mday;
 
-    std::string strYear = std::to_string(year).substr(2);
-    std::string strMon = zeroize(mon);
-    std::string strDay = zeroize(day);
+    Date currentDate {mon, day, year};
 
-    bool isExpired(std::string date) {
-        return manager._dateGreaterThan(date, strMon + "  " + strDay + "  " + strYear) == 1;            // If the current date is greater than the "expired" date
+    bool isExpired(Date date) {
+        return manager._dateGreaterThan(date, currentDate) == 1;            // If the current date is greater than the "expired" date
     }
 
     void resetDates() {
         year = times -> tm_year + 1900;
         mon = times -> tm_mon + 1;
         day = times -> tm_mday;
-
-        strYear = std::to_string(year).substr(2);
-        strMon = zeroize(mon);
-        strDay = zeroize(day);
     }
 
-    void addToDate(double days, int months, int years) {
-        day += days;
-        if (day > monthDays[mon-1]) {
-            day -= monthDays[mon-1];
-            mon ++;
-        }
-        if (mon > 12) {
-            year ++;
-            mon -= 12;
-        }
-
-        strYear = std::to_string(year).substr(2);
-        strMon = zeroize(mon);
-        strDay = zeroize(day);
-
-        mon += months;
-        if (mon > 12) {
-            year ++;
-            mon -= 12;
-        }
-
-        strYear = std::to_string(year).substr(2);
-        strMon = zeroize(mon);
-        strDay = zeroize(day);
-
-        year += years;
+    void addToDate(int days, int months, int years) {
+        currentDate = Date {mon + months, day + days, year + years};
     }
 
     void listItems(bool inOrder = false, bool expired = false) {
@@ -73,9 +43,9 @@ class Interface {
         std::cout << std::endl << "Name                                       Expiration Date                                 Group" << std::endl;
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
         if (manager.length == 1) {
-            printItem(manager.names[0], manager.dates[0][0], manager.dates[0][1], manager.dates[0][2], manager.loc[0]);
+            printItem(manager.names[0], manager.dates[0], manager.loc[0]);
             amtOItems ++;
-            std::cout << std::endl << "Listing " << amtOItems << " items." << std::endl;
+            std::cout << std::endl << "Listing 1 item." << std::endl;
             return;
         }
         if (manager.length == 0) {
@@ -95,21 +65,21 @@ class Interface {
                 currSplit ++;
                 tmpGroup = std::stoi(strSplit(theItems, "  ", currSplit));
                 currSplit ++;
+
+                int pm = std::stoi(strSplit(tmpDate, "/", 0));
+                int pd = std::stoi(strSplit(tmpDate, "/", 1));
+                int py = std::stoi(strSplit(tmpDate, "/", 2));
                 if (!expired) {
                     amtOItems ++;
-                    int pm = std::stoi(strSplit(tmpDate, "/", 0));
-                    int pd = std::stoi(strSplit(tmpDate, "/", 1));
-                    int py = std::stoi(strSplit(tmpDate, "/", 2));
-
-                    printItem(tmpName, pm, pd, py, tmpGroup);
+                    printItem(tmpName, {pm, pd, py, false}, tmpGroup);
                 }
                 else {
                     if (tmpDate != "99/99/99") {
-                        if (isExpired(tmpDate.substr(0, 2) + "  " + tmpDate.substr(3, 2) + "  " + tmpDate.substr(6))) {
+                        if (isExpired({pm, pd, py})) {
                             amtOItems ++;
                             std::cout << tmpName;
 
-                            int len = 43-tmpName.length();
+                            int len = 43-(int)tmpName.length();
                             for (int y = 0; y < len; y ++) {
                                 std::cout << " ";
                             }
@@ -120,17 +90,16 @@ class Interface {
                     }
                 }
             }
-            std::cout << std::endl << "Listing " << amtOItems << " item(s)" << std::endl;
+            std::cout << std::endl << "Listing " << amtOItems << " items" << std::endl;
         }
         else {
             for (int x = 0; x < manager.length; x ++) {
                 std::cout << manager.names[x];
-                int len = 40-manager.names[x].length();
+                int len = 40-(int)manager.names[x].length();
                 for (int y = 0; y < len; y ++) {
                     std::cout << " ";
                 }
-                std::cout << zeroize(manager.dates[x][0]) << "/" << zeroize(manager.dates[x][1])
-                   << "/" << zeroize(manager.dates[x][2]);
+                std::cout << manager.dates[x].getStrDate();
             
                 std::cout << "                                        "  << locationStr(manager.loc[x]) << std::endl;
             }
@@ -143,17 +112,17 @@ class Interface {
         std::string q = getLine("Enter the amount of items to delete: ");
 
         if (manager.getAmtUniqueTypes(name) > 1) {
-            std::string uniqueDates[manager.getAmtUniqueTypes(name)];
+            Date uniqueDates[manager.getAmtUniqueTypes(name)];
             std::cout << std::endl << "There are multiple kinds of that item. Select which item to delete." << std::endl << std::endl;
             for (int i = 0; i < manager.getAmtUniqueTypes(name); i ++) {
-                std::cout << "(" << i << ")" << "  " << name << ": " << manager.getUniqueDatesFromName(name, i) << std::endl;
                 uniqueDates[i] = manager.getUniqueDatesFromName(name, i);
+                std::cout << "(" << i << ")" << "  " << name << " (" << manager._amountOf(name, uniqueDates[i]) << ") : " << manager.getUniqueDatesFromName(name, i).getStrDate() << std::endl;
             }
             std::cout << std::endl;
             int resp = std::stoi(getLine("Enter in the one to edit: "));
             while (resp > manager.getAmtUniqueTypes(name) || resp < 0) {
                 std::cout << "Invalid option!" << std::endl;
-                int resp = std::stoi(getLine("Enter in the one to edit: "));
+                resp = std::stoi(getLine("Enter in the one to edit: "));
             }
             for (int x = 0; x < std::stoi(q); x ++) {
                 manager.removeItem(name, uniqueDates[resp]);
@@ -168,32 +137,22 @@ class Interface {
     }
 
     void add() {
-        std::string name, quan, mon, day, year, group;
-        int g;
+        std::string name, group;
+        int mon, day, year, quan, g;
         
         std::cout << std::endl;
         name =  getLine("Enter in the name:  ");
-        quan =  getLine("Enter in the quantity:  ");
-        mon =   getLine("Enter in the month: ");
-        day =   getLine("Enter in the day: ");
-        year =  getLine("Enter in the year: ");
+        quan =  getInt("Enter in the quantity:  ");
+        mon =   getInt("Enter in the month: ");
+        day =   getInt("Enter in the day: ");
+        year =  getInt("Enter in the year: ");
         group = getLine("Enter in the group (i.e. A1, B3):  ");
-
-        if (mon != "??") {
-            g = locationId (group);
-            mon = zeroize  (std::stoi(mon));
-            day = zeroize  (std::stoi(day));
-            year = zeroize (std::stoi(year));
-        }
-        else {
-            g = locationId (group);
-            mon = "99";
-            day = "99";
-            year = "99";
-        }
         
-        for (int x = 0; x < std::stoi(quan); x ++) {
-            manager.addItem(name, std::stoi(mon), std::stoi(day), std::stoi(year.substr(year.length()-2)), g);
+        Date addDate {mon, day, year, false};
+        
+        g = locationId(group);
+        for (int x = 0; x < quan; x ++) {
+            manager.addItem(name, addDate, g);
         }
         std::cout << "Item(s) added!" << std::endl;
     }
@@ -209,7 +168,7 @@ class Interface {
         for (int l = 0; l < manager.length; l ++) {
             if (manager.checkForKeyword(r, l)) {
                 total ++;
-                printItem(manager.names[l], manager.dates[l][0], manager.dates[l][1], manager.dates[l][2], manager.loc[1]);
+                printItem(manager.names[l], manager.dates[l], manager.loc[1]);
             }
         }
         if (total == 0) {
@@ -221,12 +180,7 @@ class Interface {
     }
 public:
     Interface() {
-        if (mon < 10) {
-            strMon = "0" + strMon;
-        }
-        if (day < 10) {
-            strDay = "0" + strDay;
-        }
+
     }
 
     void help() {
@@ -266,14 +220,12 @@ public:
             remove();
         }
         else if (command == "will expire") {
-            std::string d, m, y;
-            std::cout << "Enter a timespan (in days):  ";
-            std::getline(std::cin, d);
-            std::cout << "Enter a timespan (in months):  ";
-            std::getline(std::cin, m);
-            std::cout << "Enter a timespan (in years):  ";
-            std::getline(std::cin, y);
-            addToDate(std::stoi(d), std::stoi(m), std::stoi(y));
+            int d, m, y;
+            d = getInt("Enter in a timespan (in days): ");
+            m = getInt("Enter in a timespan (in months): ");
+            y = getInt("Enter a timespan (in years): ");
+            std::cout << year << std::endl;
+            addToDate(d, m, y);
 
             system("clear");
 
@@ -293,4 +245,5 @@ public:
         }
     }
 };
+#pragma GCC diagnostic pop
 #endif

@@ -1,8 +1,0 @@
-Item  120122  16
-Item  120122  16
-Test  999999  1
-Test  999999  1
-Test  999999  1
-Cherry canned blossom  052121  1
-Cherry canned blossom  052121  1
-Cherry canned blossom  052121  1
