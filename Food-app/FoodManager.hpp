@@ -9,9 +9,10 @@
 
 struct FoodManager {
     unsigned int length;              // The known length of the file
-    std::string names[10000];
-    Date dates[10000];
-    short loc[10000];
+    std::string names[1000];
+    Date dates[1000];
+    short loc[1000];
+    int rAmtOf[1000];
 
     int _lengthOfFile() {
         std::ifstream file {"Food-file.txt"};
@@ -40,6 +41,7 @@ struct FoodManager {
                 names[curLine] = strSplit(line, "  ", 0);
                 dateLine = strSplit(line, "  ", 1);
                 loc[curLine] = std::stoi(strSplit(line, "  ", 2));
+                rAmtOf[curLine] = std::stoi(strSplit(line, "r=", 1));
 
                 if (dateLine == "??/??/??") {                // This means that the expiration date is unknown
                     dates[curLine] = {99, 99, 99, false};
@@ -91,21 +93,22 @@ struct FoodManager {
         std::ofstream file {"Food-file.txt"};
 
         for (int x = 0; x < length; x ++) {
-            file << names[x] << "  " << dates[x].getStrDate() << "  " << loc[x] << std::endl; 
+            file << names[x] << "  " << dates[x].getStrDate() << "  " << loc[x] << "r=" << rAmtOf[x] << std::endl; 
         }
         file.close();
     }
 
-    void addItem(std::string name, Date date, short group) {
+    void addItem(std::string name, Date date, short group, int rItems) {
         std::ofstream piper;
         piper.open("Food-file.txt", std::ios::app);
 
-        piper << name << "  " << date.mon_str() << "/" << date.day_str() << "/" << date.year_str() << "  " << group << std::endl; 
+        piper << name << "  " << date.mon_str() << "/" << date.day_str() << "/" << date.year_str() << "  " << group << "  r=" << rItems << std::endl; 
         piper.close();
 
         names[length] = name;
         dates[length] = date;
         loc[length] = group;
+        rAmtOf[length] = rItems;
 
         length += 1;
 
@@ -123,6 +126,7 @@ struct FoodManager {
                     names[x] = names[x+1];
                     dates[x] = dates[x+1];
                     loc[x] = loc[x+1];
+                    rItems[x] = rItems[x+1];
                 }
                 length -= 1;
                 writeToFile();
