@@ -251,3 +251,12 @@ void printItem(std::string name, Date date, int loc) {
     std::cout << "                                          " << locationStr(loc) << std::endl;
     std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
 }
+
+void removeFromVector(std::vector<auto> &vect, unsigned int position) {
+    auto it = vect.begin() + position;
+    vect.erase(it);
+}
+
+void debugPrint(auto p, std::string explanation = "") {
+    std::cout << "DEBUG PRINTING: " << explanation << ", " << "'" << p << "'" << std::endl;
+}

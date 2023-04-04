@@ -25,7 +25,7 @@ class Interface {
     Date currentDate {mon, day, year};
 
     bool isExpired(Date date) {
-        return manager._dateGreaterThan(date, currentDate) == 1;            // If the current date is greater than the "expired" date
+        return currentDate > date;            // If the current date is greater than the "expired" date
     }
 
     void resetDates() {
@@ -39,16 +39,17 @@ class Interface {
     }
 
     void listItems(bool inOrder = false, bool expired = false) {
+        manager._loadFile();
         unsigned int amtOItems = 0;
         std::cout << std::endl << "Name                                       Expiration Date                                 Group" << std::endl;
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
-        if (manager.length == 1) {
+        if (manager.names.size() == 1) {
             printItem(manager.names[0], manager.dates[0], manager.loc[0]);
             amtOItems ++;
             std::cout << std::endl << "Listing 1 item." << std::endl;
             return;
         }
-        if (manager.length == 0) {
+        if (manager.names.size() == 0) {
             std::cout << "No items in list!!!" << std::endl << std::endl;
             return;
         } 
@@ -58,7 +59,7 @@ class Interface {
             std::string tmpName, tmpDate;
             int tmpGroup;
             std::string theItems = manager.sortDates();
-            for (int x = 0; x < manager.length; x ++) { 
+            for (unsigned long x = 0; x < manager.names.size(); x ++) { 
                 tmpName = strSplit(theItems, "  ", currSplit);
                 currSplit ++;
                 tmpDate = strSplit(theItems, "  ", currSplit);
@@ -69,6 +70,7 @@ class Interface {
                 int pm = std::stoi(strSplit(tmpDate, "/", 0));
                 int pd = std::stoi(strSplit(tmpDate, "/", 1));
                 int py = std::stoi(strSplit(tmpDate, "/", 2));
+    
                 if (!expired) {
                     amtOItems ++;
                     printItem(tmpName, {pm, pd, py, false}, tmpGroup);
@@ -89,11 +91,12 @@ class Interface {
                         }
                     }
                 }
+                currSplit = 0;
             }
             std::cout << std::endl << "Listing " << amtOItems << " items" << std::endl;
         }
         else {
-            for (int x = 0; x < manager.length; x ++) {
+            for (unsigned long x = 0; x < manager.names.size(); x ++) {
                 std::cout << manager.names[x];
                 int len = 40-(int)manager.names[x].length();
                 for (int y = 0; y < len; y ++) {
@@ -112,10 +115,10 @@ class Interface {
         std::string q = getLine("Enter the amount of items to delete: ");
 
         if (manager.getAmtUniqueTypes(name) > 1) {
-            Date uniqueDates[manager.getAmtUniqueTypes(name)];
+            std::vector<Date> uniqueDates;
             std::cout << std::endl << "There are multiple kinds of that item. Select which item to delete." << std::endl << std::endl;
             for (int i = 0; i < manager.getAmtUniqueTypes(name); i ++) {
-                uniqueDates[i] = manager.getUniqueDatesFromName(name, i);
+                uniqueDates.push_back(manager.getUniqueDatesFromName(name, i));
                 std::cout << "(" << i << ")" << "  " << name << " (" << manager._amountOf(name, uniqueDates[i]) << ") : " << manager.getUniqueDatesFromName(name, i).getStrDate() << std::endl;
             }
             std::cout << std::endl;
@@ -138,7 +141,7 @@ class Interface {
 
     void add() {
         std::string name, group;
-        int mon, day, year, quan, g;
+        int mon, day, year, quan, g, amt;
         
         std::cout << std::endl;
         name =  getLine("Enter in the name:  ");
@@ -146,13 +149,14 @@ class Interface {
         mon =   getInt("Enter in the month: ");
         day =   getInt("Enter in the day: ");
         year =  getInt("Enter in the year: ");
+        amt = getInt("Enter in the amount of items: ");
         group = getLine("Enter in the group (i.e. A1, B3):  ");
         
         Date addDate {mon, day, year, false};
         
         g = locationId(group);
         for (int x = 0; x < quan; x ++) {
-            manager.addItem(name, addDate, g);
+            manager.addItem(name, addDate, g, amt);
         }
         std::cout << "Item(s) added!" << std::endl;
     }
@@ -165,7 +169,7 @@ class Interface {
         std::cout << std::endl;
         std::cout << "Name                                       Expiration Date                                 Group" << std::endl;
         std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
-        for (int l = 0; l < manager.length; l ++) {
+        for (unsigned long l = 0; l < manager.names.size(); l ++) {
             if (manager.checkForKeyword(r, l)) {
                 total ++;
                 printItem(manager.names[l], manager.dates[l], manager.loc[1]);
@@ -245,5 +249,4 @@ public:
         }
     }
 };
-#pragma GCC diagnostic pop
 #endif
