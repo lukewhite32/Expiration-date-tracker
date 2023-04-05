@@ -1,6 +1,4 @@
-#pragma once
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wtrigraphs"
+/* The interface and TUI for the app */
 
 #include <unistd.h>
 #include <ctime>
@@ -100,29 +98,29 @@ class Interface {
 
     void remove() {
         std::string name = getLine("Enter the name for the item to delete: ");
-        std::string q = getLine("Enter the amount of items to delete: ");
+        int q = getInt("Enter the amount of items to delete: ");
 
-        if (manager.getAmtUniqueTypes(name) > 1) {
+        if (manager._amountOf(name) > 1) {
             std::vector<Date> uniqueDates;
             std::cout << std::endl << "There are multiple kinds of that item. Select which item to delete." << std::endl << std::endl;
-            for (int i = 0; i < manager.getAmtUniqueTypes(name); i ++) {
-                uniqueDates.push_back(manager.getUniqueDatesFromName(name, i));
-                std::cout << "(" << i << ")" << "  " << name << " (" << manager._amountOf(name, uniqueDates[i]) << ") : " << manager.getUniqueDatesFromName(name, i).getStrDate() << std::endl;
+            std::vector<Info> items = manager.getUniqueItems(name);
+            for (int i = 0; i < manager._amountOf(name); i ++) {
+                uniqueDates.push_back(items[i].date);
+                std::cout << "(" << i << ")" << "  " << name << " (" << items[i].amt << ") : " << items[i].date.getStrDate() << std::endl;
             }
             std::cout << std::endl;
-            int resp = std::stoi(getLine("Enter in the one to edit: "));
-            while (resp > manager.getAmtUniqueTypes(name) || resp < 0) {
+            unsigned int resp = getInt("Enter in the one to edit: ");
+            while (resp > items.size() || resp < 0) {
                 std::cout << "Invalid option!" << std::endl;
-                resp = std::stoi(getLine("Enter in the one to edit: "));
+                resp = getInt("Enter in the one to edit: ");
             }
-            for (int x = 0; x < std::stoi(q); x ++) {
-                manager.removeItem(name, uniqueDates[resp]);
-            }
+            
+            manager.removeAmtOfItem({name, items[resp].date, items[resp].loc, items[resp].amt}, q);
         }
         else {
-            for (int x = 0; x < std::stoi(q); x ++) {
-                manager.removeItem(name, manager.getUniqueDatesFromName(name, 0));
-            }
+            //for (int x = 0; x < std::stoi(q); x ++) {
+                //manager.removeItem(name, manager.getUniqueDatesFromName(name, 0));
+            //}
         }
         std::cout << "Removed item(s) '" << name << "'!" << std::endl;
     }
@@ -171,9 +169,6 @@ class Interface {
         }
     }
 public:
-    Interface() {
-
-    }
 
     void help() {
         std::cout << "--------------------------------------------------" << std::endl;
@@ -205,7 +200,6 @@ public:
         else if (command == "list items") {
             manager._loadFile();
             system("clear");
-            resetDates();
             listItems(true);
         }
         else if (command == "remove item") {
@@ -222,6 +216,8 @@ public:
             system("clear");
 
             listItems(true, true);
+
+            resetDates();
         }
         else if (command == "clear") {
             system("clear");

@@ -6,8 +6,8 @@
 #include <fstream>         // For file management
 #include <string.h>
 #include <vector>
+
 #include "Helper.hpp"
-#include <algorithm>
 
 struct FoodManager {
     std::vector<std::string> names;
@@ -39,41 +39,32 @@ struct FoodManager {
         if ( file.is_open() ) {
             for (int x = 0; x < _lengthOfFile(); x ++) {
                 std::getline(file, line);
-                //debugPrint(line, "looking at");
-                names.push_back(strSplit(line, "  ", 0));
-                //debugPrint(strSplit(line, "  ", 0), "name");
-                dateLine = strSplit(line, "  ", 1);
-                loc.push_back(std::stoi(strSplit(line, "  ", 2)));
-                rAmtOf.push_back(std::stoi(strSplit(line, "r=", 1)));
+                if (std::stoi(strSplit(line, "r=", 1)) > 0) {
+                    names.push_back(strSplit(line, "  ", 0));
+                    dateLine = strSplit(line, "  ", 1);
+                    loc.push_back(std::stoi(strSplit(line, "  ", 2)));
+                    rAmtOf.push_back(std::stoi(strSplit(line, "r=", 1)));
 
-                if (dateLine == "??/??/??") {                // This means that the expiration date is unknown
-                    dates.push_back({99, 99, 99, false});
-                }
-                else {
-                    dates.push_back({std::stoi(strSplit(dateLine, "/", 0)), std::stoi(strSplit(dateLine, "/", 1)), std::stoi(strSplit(dateLine, "/", 2))});
+                    if (dateLine == "??/??/??") {                // This means that the expiration date is unknown
+                        dates.push_back({99, 99, 99, false});
+                    }
+                    else {
+                        dates.push_back({std::stoi(strSplit(dateLine, "/", 0)), std::stoi(strSplit(dateLine, "/", 1)), std::stoi(strSplit(dateLine, "/", 2))});
+                    }
                 }
             }
         }
         file.close();
     }
 
-    int _findItem(std::string name, int startPoint = 0) {
-        for (unsigned int i = startPoint; i < names.size(); i ++) {
-            if (names[i] == name) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     FoodManager() {
         _loadFile();
     }
 
-    int _amountOf(std::string name, Date date) {
+    int _amountOf(std::string name) {
         int ret = 0;
         for (unsigned int x = 0; x < names.size(); x ++) {
-            if (names[x] == name && date == dates[x]) {
+            if (names[x] == name) {
                 ret ++;
             }
         }
@@ -104,49 +95,40 @@ struct FoodManager {
         _loadFile();
     }
 
-    void removeItem(std::string name, Date date) {
+    void removeItem(Info info) {
         for (unsigned long i = 0; i < names.size(); i ++) {
-            if (names[i] == name && (dates[i] == date)) {
+            if ((info.name == names[i]) && (info.date == dates[i]) && (info.loc == loc[i]) && (info.amt == rAmtOf[i])) {
                 removeFromVector(names, i);
                 removeFromVector(dates, i);
                 removeFromVector(loc, i);
                 removeFromVector(rAmtOf, i);
                 writeToFile();
-                return;
             }
         }
-        std::cout << "Item '" << name << "' could not be found!" << std::endl;
+        //std::cout << "Item '" << name << "' could not be found!" << std::endl;
     }
 
-    int getAmtUniqueTypes(std::string name) {
-        int uTypes = 0;
-        Date tDate = {0, 0, 0};
-        for (unsigned long x = 0; x < names.size(); x ++) {
-            if (name == names[x]) {
-                if (!(dates[x] == tDate)) {
-                    uTypes ++;
-                    tDate = dates[x];
+    std::vector<Info> getUniqueItems(std::string name) {
+        std::vector<Info> ret;
+        for (unsigned int i = 0; i < names.size(); i ++) {
+            if (names[i] == name) {
+                ret.push_back({name, dates[i], loc[i], rAmtOf[i]});
+            }
+        }
+        return ret;
+    }
+
+    void removeAmtOfItem(Info info, int amt) {
+        for (unsigned int x = 0; x < names.size(); x ++) {
+            if ((info.name == names[x]) && (info.date == dates[x]) && (info.loc == loc[x]) && (info.amt == rAmtOf[x])) {
+                rAmtOf[x] -= amt;
+                if (rAmtOf[x] <= 0) {
+                    debugPrint("less than");
+                    removeItem({info});
                 }
             }
         }
-        return uTypes;
-    }
-
-    Date getUniqueDatesFromName(std::string name, int index) {
-        int curr = 0;
-        Date tDate = {0, 0, 0};
-        for (unsigned long x = 0; x < names.size(); x ++) {
-            if (name == names[x]) {
-                if (!(dates[x] == tDate)) {
-                    if (curr == index) {
-                        return dates[x];
-                    }
-                    curr ++;
-                    tDate = dates[x];
-                }
-            }
-        }
-        return tDate;
+        writeToFile();
     }
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'

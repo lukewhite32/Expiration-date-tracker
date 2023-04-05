@@ -5,7 +5,6 @@
 #endif
 
 int main() {
-    FoodManager food_manager;
     Interface inter;
     inter.help();
     while (1) {

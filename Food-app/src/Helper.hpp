@@ -265,3 +265,10 @@ std::string nextString(std::string str1, std::string str2, std::string split) {
     std::string look = strSplit(str2, str1, 2);
     return strSplit(look, split, 1);
 }
+
+struct Info {
+    std::string name;
+    Date date;
+    int loc;
+    int amt;
+};
