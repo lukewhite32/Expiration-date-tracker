@@ -41,10 +41,10 @@ class Interface {
     void listItems(bool inOrder = false, bool expired = false) {
         manager._loadFile();
         unsigned int amtOItems = 0;
-        std::cout << std::endl << "Name                                       Expiration Date                                 Group" << std::endl;
-        std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << std::endl << "Name                                       Expiration Date                                  Group                                       Amount" << std::endl;
+        std::cout <<              "-----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
         if (manager.names.size() == 1) {
-            printItem(manager.names[0], manager.dates[0], manager.loc[0]);
+            printItem(manager.names[0], manager.dates[0], manager.loc[0], manager.rAmtOf[0]);
             amtOItems ++;
             std::cout << std::endl << "Listing 1 item." << std::endl;
             return;
@@ -55,17 +55,14 @@ class Interface {
         } 
 
         if (inOrder) {
-            int currSplit = 0;
             std::string tmpName, tmpDate;
-            int tmpGroup;
+            int tmpGroup, tmpAmt;
             std::string theItems = manager.sortDates();
             for (unsigned long x = 0; x < manager.names.size(); x ++) { 
-                tmpName = strSplit(theItems, "  ", currSplit);
-                currSplit ++;
-                tmpDate = strSplit(theItems, "  ", currSplit);
-                currSplit ++;
-                tmpGroup = std::stoi(strSplit(theItems, "  ", currSplit));
-                currSplit ++;
+                tmpName = strSplit(theItems, "  ", x * 4);
+                tmpDate = strSplit(theItems, "  ", x * 4 + 1);
+                tmpGroup = std::stoi(strSplit(theItems, "  ", x * 4 + 2));
+                tmpAmt = std::stoi(strSplit(strSplit(theItems, "r=", x + 1), "  ", 0));
 
                 int pm = std::stoi(strSplit(tmpDate, "/", 0));
                 int pd = std::stoi(strSplit(tmpDate, "/", 1));
@@ -73,25 +70,16 @@ class Interface {
     
                 if (!expired) {
                     amtOItems ++;
-                    printItem(tmpName, {pm, pd, py, false}, tmpGroup);
+                    printItem(tmpName, {pm, pd, py, false}, tmpGroup, tmpAmt);
                 }
                 else {
                     if (tmpDate != "99/99/99") {
                         if (isExpired({pm, pd, py})) {
                             amtOItems ++;
-                            std::cout << tmpName;
-
-                            int len = 43-(int)tmpName.length();
-                            for (int y = 0; y < len; y ++) {
-                                std::cout << " ";
-                            }
-
-                            std::cout << tmpDate << "                                        " << locationStr(tmpGroup) << std::endl;
-                            std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+                            printItem(tmpName, {pm, pd, py, false}, tmpGroup, tmpAmt);
                         }
                     }
                 }
-                currSplit = 0;
             }
             std::cout << std::endl << "Listing " << amtOItems << " items" << std::endl;
         }
@@ -167,12 +155,12 @@ class Interface {
         int total = 0;
         system("clear");
         std::cout << std::endl;
-        std::cout << "Name                                       Expiration Date                                 Group" << std::endl;
-        std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+        std::cout << "Name                                       Expiration Date                                  Group                                       Amount" << std::endl;
+        std::cout << "-----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
         for (unsigned long l = 0; l < manager.names.size(); l ++) {
             if (manager.checkForKeyword(r, l)) {
                 total ++;
-                printItem(manager.names[l], manager.dates[l], manager.loc[1]);
+                printItem(manager.names[l], manager.dates[l], manager.loc[1], manager.rAmtOf[l]);
             }
         }
         if (total == 0) {

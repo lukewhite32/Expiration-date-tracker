@@ -241,15 +241,15 @@ struct Date {
 };
 
 
-void printItem(std::string name, Date date, int loc) {
+void printItem(std::string name, Date date, int loc, int amt) {
     std::cout << name;
     for (int x = (int)name.length(); x < 43; x ++) {
         std::cout << " ";
     }
     
     std::cout << date.getStrDate();
-    std::cout << "                                          " << locationStr(loc) << std::endl;
-    std::cout << "------------------------------------------------------------------------------------------------" << std::endl;
+    std::cout << "                                          " << locationStr(loc) << "                                          " << amt << std::endl;
+    std::cout << "-----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 }
 
 void removeFromVector(std::vector<auto> &vect, unsigned int position) {
@@ -259,4 +259,9 @@ void removeFromVector(std::vector<auto> &vect, unsigned int position) {
 
 void debugPrint(auto p, std::string explanation = "") {
     std::cout << "DEBUG PRINTING: " << explanation << ", " << "'" << p << "'" << std::endl;
+}
+
+std::string nextString(std::string str1, std::string str2, std::string split) {
+    std::string look = strSplit(str2, str1, 2);
+    return strSplit(look, split, 1);
 }

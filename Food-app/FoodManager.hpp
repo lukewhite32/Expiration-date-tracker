@@ -39,9 +39,9 @@ struct FoodManager {
         if ( file.is_open() ) {
             for (int x = 0; x < _lengthOfFile(); x ++) {
                 std::getline(file, line);
-                debugPrint(line, "looking at");
+                //debugPrint(line, "looking at");
                 names.push_back(strSplit(line, "  ", 0));
-                debugPrint(strSplit(line, "  ", 0), "name");
+                //debugPrint(strSplit(line, "  ", 0), "name");
                 dateLine = strSplit(line, "  ", 1);
                 loc.push_back(std::stoi(strSplit(line, "  ", 2)));
                 rAmtOf.push_back(std::stoi(strSplit(line, "r=", 1)));
@@ -163,7 +163,6 @@ struct FoodManager {
             tmpLocs.push_back(loc[x]);
             tmpNames.push_back(names[x]);
             tmpAmts.push_back(rAmtOf[x]);
-            std::cout << "called" << std::endl;
         }
 
         while (!over) {
@@ -172,22 +171,26 @@ struct FoodManager {
                 Date compare2 = tmpDates[x+1];
             
                 if (compare1 > compare2) {
-                    Date tmp;
-                    short tmpG;
-                    std::string tmpN;
-                    int tmpR;
-                    tmp = tmpDates[x];                
-                    tmpDates[x] = tmpDates[x+1];
-                    tmpDates[x+1] = tmp;
-                    tmpN = tmpNames[x];
-                    tmpNames[x] = tmpNames[x+1];
-                    tmpNames[x+1] = tmpN;
-                    tmpG = tmpLocs[x];
-                    tmpLocs[x] = tmpLocs[x+1];
-                    tmpLocs[x+1] = tmpG;
-                    tmpR = tmpAmts[x];
-                    tmpAmts[x] = tmpAmts[x+1];
-                    tmpAmts[x+1] = tmpR;
+                    Date tmp1, tmp2;
+                    short tmpG1, tmpG2;
+                    std::string tmpN1, tmpN2;
+                    int tmpR1, tmpR2;
+                    tmp1 = tmpDates[x];                
+                    tmp2 = tmpDates[x+1];
+                    tmpDates[x+1] = tmp1;
+                    tmpDates[x] = tmp2;
+                    tmpN1 = tmpNames[x];
+                    tmpN2 = tmpNames[x+1];
+                    tmpNames[x] = tmpN2;
+                    tmpNames[x+1] = tmpN1;
+                    tmpG1 = tmpLocs[x];
+                    tmpG2 = tmpLocs[x+1];
+                    tmpLocs[x] = tmpG2;
+                    tmpLocs[x+1] = tmpG1;
+                    tmpR1 = tmpAmts[x];
+                    tmpR2 = tmpAmts[x+1];
+                    tmpAmts[x+1] = tmpR1;
+                    tmpAmts[x] = tmpR2;
                     /*std::swap(tmpDates.begin() + x, tmpDates.begin() + x + 1);       // thanks stackoverflow
                     std::swap(tmpNames.begin() + x, tmpDates.begin() + x + 1);
                     std::swap(tmpLocs.begin() + x, tmpLocs.begin() + x + 1);
