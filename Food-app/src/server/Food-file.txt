@@ -3,3 +3,4 @@ mid  02/24/23  A2  1
 highest  02/25/23  A2  1
 notexp  04/23/24  This  2
 less  02/22/32  1  2
+item  06/23/23  3  2

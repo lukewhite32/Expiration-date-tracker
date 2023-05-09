@@ -214,11 +214,11 @@ def getAllGroup(g):
 def getExpired():
     global fileLines
     currentDate = Date(datetime.now().month, datetime.now().day, int(str(datetime.now().year)[2:]))
-    compare = getSortedFoodArray(fileLines)
-    for item in compare:
-        if item[1].isGreaterThan(currentDate):
-            del compare[compare.index(item)]
-    return getSortedFoodInfo(compare)
+    ret = []
+    for item in getSortedFoodArray(fileLines):
+        if not item[1].isGreaterThan(currentDate):
+            ret.append(item)
+    return getSortedFoodInfo(ret)
 
 def addItem(n, d, l, a):
     f = open("Food-file.txt", 'a')
