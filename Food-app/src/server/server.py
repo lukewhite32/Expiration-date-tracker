@@ -107,6 +107,9 @@ class Client:
         except UnicodeDecodeError:
             pass
 
+    def leave(self):
+        self.tup[0].close()
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock.setblocking(False)
 
@@ -209,12 +212,12 @@ def getAllGroup(g):
     return getSortedFoodInfo(ret)
 
 def getExpired():
+    global fileLines
     currentDate = Date(datetime.now().month, datetime.now().day, int(str(datetime.now().year)[2:]))
     compare = getSortedFoodArray(fileLines)
-    for x in range(len(compare)):
-        print("applicable,", compare[x][1].getStr(), ">", currentDate.getStr())
-        if compare[x][1].isGreaterThan(currentDate):
-            del compare[x]
+    for item in compare:
+        if item[1].isGreaterThan(currentDate):
+            del compare[compare.index(item)]
     return getSortedFoodInfo(compare)
 
 def addItem(n, d, l, a):
@@ -265,7 +268,7 @@ def updateClients():
         if not cli.greet:
             cli.sendTo(getHelp())
             
-        elif cli.get() == "NOPE":
+        if cli.get() == "NOPE":
             del clients[clients.index(cli)]
             print("client removed")
         
@@ -321,12 +324,12 @@ def updateClients():
                                 removeIndex = cli.get()
                             else:
                                 cli.sendOnce("Item(s) deleted.\n")
-                                removeItem(int(removeCRLF(removeIndex)), removeCRLF(removeAmt))
+                                removeItem(fileLines.index(n[int(removeCRLF(removeIndex))]), removeCRLF(removeAmt))
                                 cli.inputState = False
                                 removeName = ""
                                 removeIndex = ""
                                 removeAmt = ""
-                        elif n == []:
+                        elif not n:
                             cli.sendTo("There are no items with this name.\n")
                             cli.inputState = False
                             removeName = ""
@@ -351,11 +354,16 @@ def updateClients():
                 else:
                     cli.sendTo(getAllGroup(groupName))
                     cli.inputState = False
+            elif removeCRLF(s) == "quit":
+                cli.sendOnce("Leaving!\n")
+                cli.leave()
+                del clients[clients.index(cli)]
             else:
                 cli.sendTo("Command not found!\n")
                 cli.sendTo(getHelp())
-     
-        cli.update()
+
+        if removeCRLF(s) != "quit":
+            cli.update()
 
 while 1:
     try:
