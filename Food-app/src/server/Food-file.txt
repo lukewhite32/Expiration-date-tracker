@@ -1,1 +1,4 @@
-then  02/32/32  A3  1thii  3/23/23  A3  2
+less  02/23/23  A1  2
+mid  02/24/23  A2  1
+highest  02/25/23  A2  1
+notexp  4/23/24  This  2

@@ -1,6 +1,7 @@
 import socket
 import time
 import os
+from datetime import datetime
 
 fileLines = []
 clients = []
@@ -34,6 +35,16 @@ class Date:
     def getStr(self):
         return zeroize(str(self.mon)) + "/" + zeroize(str(self.day)) + "/" + zeroize(str(self.year))
 
+    def isGreaterThan(self, comp):
+        if comp.year == self.year:
+            if comp.mon == self.mon:
+                return self.day > comp.day
+            else:
+                return self.mon > comp.mon
+        else:
+            return self.year > comp.year
+        return False
+
 def removeNewLines(stringBytes):
     return stringBytes[:4].decode()
     """for x in range(len(stringBytes) - 1):
@@ -58,7 +69,10 @@ class Client:
 
     def sendTo(self, string):
         self.greet = True
-        self.tup[0].send(bytes(string, 'utf-8'))
+        try:
+            self.tup[0].send(bytes(string, 'utf-8'))
+        except BrokenPipeError:
+            pass
 
     def sendOnce(self, string):
         if self.lastSent == string:
@@ -138,18 +152,29 @@ def loadFoodInfo():
         fileLines[x] = removeCRLF(fileLines[x])
         ret.append(fileLines[x].split("  "))
         ret[x][1] = Date(int(fileLines[x].split("  ")[1].split("/")[0]), int(fileLines[x].split("  ")[1].split("/")[1]), int(fileLines[x].split("  ")[1].split("/")[2]))
-        ret[x][3] += "\n"
     fileLines = ret
     foodFile.close()
 
 def writeFoodInfo():
     foodFile = open("Food-file.txt", 'w+')
     for item in fileLines:
-        ret = item[0] + "  " + item[1].getStr() + "  " + item[2] + "  " + item[3]
-        """if item != fileLines[len(fileLines) - 1]:
-            ret += "\n"""
+        ret = item[0] + "  " + item[1].getStr() + "  " + item[2] + "  " + item[3] + "\n"
         foodFile.write(ret)
         ret = ""
+
+def getSortedFoodArray(arr):
+    loadFoodInfo()
+    sort = arr
+    hasSorted = True
+    while hasSorted:
+        hasSorted = False
+        for x in range(len(sort) - 1):
+            if sort[x][1].isGreaterThan(sort[x+1][1]):
+                tmp = sort[x+1]
+                sort[x+1] = sort[x]
+                sort[x] = tmp
+                hasSorted = True
+    return sort
 
 def getHelp():
     ret = ""
@@ -162,7 +187,7 @@ def getUnsortedFoodInfo():
     ret = ""
     loadFoodInfo()
     ret += "Name\t\t\t\tDate\t\t\t\tLocation\t\t\t\t\tAmount remaining\n"
-    for line in fileLines:
+    for line in arr:
         ret += "--------------------------------------------------------------------------------------------------------------------------------\n"
         ret += line[0]
         for y in range(32 - len(line[0])):
@@ -172,12 +197,43 @@ def getUnsortedFoodInfo():
         ret += line[3]
     return ret + "--------------------------------------------------------------------------------------------------------------------------------\n"
 
+def getSortedFoodInfo(arr):
+    ret = ""
+    ret += "Name\t\t\t\tDate\t\t\t\tLocation\t\t\t\t\tAmount remaining\n"
+    for line in getSortedFoodArray(arr):
+        ret += "--------------------------------------------------------------------------------------------------------------------------------\n"
+        ret += line[0]
+        for y in range(32 - len(line[0])):
+            ret += " "
+        ret += line[1].getStr() + "\t\t\t"
+        ret += line[2] + "\t\t\t\t\t\t"
+        ret += line[3] + "\n"
+    return ret + "--------------------------------------------------------------------------------------------------------------------------------\n"
+
+def getAllGroup(g):
+    global fileLines
+    ret = fileLines
+    for item in ret:
+        if item[2] == removeCRLF(g):
+            del item
+    return getSortedFoodInfo(ret)
+
+def getExpired():
+    currentDate = Date(datetime.now().month, datetime.now().day, int(str(datetime.now().year)[2:]))
+    compare = getSortedFoodArray(fileLines)
+    for x in range(len(compare)):
+        print("applicable,", compare[x][1].getStr(), ">", currentDate.getStr())
+        if compare[x][1].isGreaterThan(currentDate):
+            del compare[x]
+    return getSortedFoodInfo(compare)
+
 def addItem(n, d, l, a):
     f = open("Food-file.txt", 'a')
     f.write(n + "  " + d + "  " + l + "  " + a + "\n")
     f.close()
 
 def removeItem(i, amt="1"):
+    loadFoodInfo()
     fileLines[i][3] = str(int(fileLines[i][3]) - int(amt))
     if int(fileLines[i][3]) <= 0:
         del fileLines[i]
@@ -193,9 +249,8 @@ def getAllPossible(name):
 
 def getItemPosition(name):
     for x in range(len(fileLines)):
-        if fileLines[x][0] == name:
+        if removeCRLF(fileLines[x][0]) == removeCRLF(name):
             return x
-    return -1
 
 def acceptClients():
     try:
@@ -212,9 +267,10 @@ addAmt = ""
 removeName = ""
 removeIndex = ""
 removeAmt = ""
+groupName = ""
 
 def updateClients():
-    global clients, addName, addDate, addLoc, addAmt, removeName, removeIndex, removeAmt
+    global clients, addName, addDate, addLoc, addAmt, removeName, removeIndex, removeAmt, groupName, fileLines
     for cli in clients:
         if not cli.greet:
             cli.sendTo(getHelp())
@@ -226,7 +282,8 @@ def updateClients():
         s = cli.commandLine()
         if s: 
             if removeCRLF(s) == "list items":
-                cli.sendTo(getUnsortedFoodInfo())
+                loadFoodInfo()
+                cli.sendTo(getSortedFoodInfo(fileLines))
             elif removeCRLF(s) == "add item":
                 cli.inputState = True
                 if not addName:
@@ -292,13 +349,23 @@ def updateClients():
                             removeName = ""
                             removeIndex = ""
                             removeAmt = ""
+            elif removeCRLF(s) == "list expired":
+                loadFoodInfo()
+                cli.sendTo(getExpired())
+            elif removeCRLF(s) == "list group":
+                loadFoodInfo()
+                cli.inputState = True
+                if not groupName:
+                    cli.sendOnce("Enter in a group:  ")
+                    groupName = cli.get()
+                else:
+                    cli.sendTo(getAllGroup(groupName))
+                    cli.inputState = False
             else:
                 cli.sendTo("Command not found!\n")
                 cli.sendTo(getHelp())
-
-                        
+     
         cli.update()
-          
 
 while 1:
     try:
