@@ -1,7 +1,5 @@
 /* Manages the files and all the food in it */
-
-#ifndef MANAGER_HPP
-#define MANAGER_HPP
+#pragma once
 
 #include <fstream>         // For file management
 #include <string.h>
@@ -9,12 +7,7 @@
 
 #include "Helper.hpp"
 
-struct FoodManager {
-    std::vector<std::string> names;
-    std::vector<Date> dates;
-    std::vector<short> loc;
-    std::vector<int> rAmtOf;
-
+class FoodManager {
     int _lengthOfFile() {
         std::ifstream file {"Food-file.txt"};
         std::string line;
@@ -28,7 +21,22 @@ struct FoodManager {
         return len;
     }
 
-    void _loadFile() {
+    void _writeToFile() {
+        std::ofstream file {"Food-file.txt"};
+
+        for (unsigned long x = 0; x < names.size(); x ++) {
+            file << names[x] << "  " << dates[x].getStrDate() << "  " << loc[x] << "  r=" << rAmtOf[x] << std::endl; 
+        }
+        file.close();
+    }
+
+public:
+    std::vector<std::string> names;
+    std::vector<Date> dates;
+    std::vector<short> loc;
+    std::vector<int> rAmtOf;
+
+    void loadFile() {
         names.clear();
         dates.clear();
         loc.clear();
@@ -58,10 +66,10 @@ struct FoodManager {
     }
 
     FoodManager() {
-        _loadFile();
+        loadFile();
     }
 
-    int _amountOf(std::string name) {
+    int amountOf(std::string name) {
         int ret = 0;
         for (unsigned int x = 0; x < names.size(); x ++) {
             if (names[x] == name) {
@@ -69,15 +77,6 @@ struct FoodManager {
             }
         }
         return ret;
-    }
-
-    void writeToFile() {
-        std::ofstream file {"Food-file.txt"};
-
-        for (unsigned long x = 0; x < names.size(); x ++) {
-            file << names[x] << "  " << dates[x].getStrDate() << "  " << loc[x] << "  r=" << rAmtOf[x] << std::endl; 
-        }
-        file.close();
     }
 
     void addItem(std::string name, Date date, short group, int rItems) {
@@ -92,7 +91,7 @@ struct FoodManager {
         loc.push_back(group);
         rAmtOf.push_back(rItems);
 
-        _loadFile();
+        loadFile();       // call this as many times as you want
     }
 
     void removeItem(Info info) {
@@ -102,7 +101,7 @@ struct FoodManager {
                 removeFromVector(dates, i);
                 removeFromVector(loc, i);
                 removeFromVector(rAmtOf, i);
-                writeToFile();
+                _writeToFile();
             }
         }
         //std::cout << "Item '" << name << "' could not be found!" << std::endl;
@@ -118,21 +117,33 @@ struct FoodManager {
         return ret;
     }
 
-    void removeAmtOfItem(Info info, int amt) {
+    void removeAmtOfItem(Info info, int amt, int index = -1) {
+        int encounter = 0;
         for (unsigned int x = 0; x < names.size(); x ++) {
             if ((info.name == names[x]) && (info.date == dates[x]) && (info.loc == loc[x]) && (info.amt == rAmtOf[x])) {
-                rAmtOf[x] -= amt;
-                if (rAmtOf[x] <= 0) {
-                    debugPrint("less than");
-                    removeItem({info});
+                if ((index != -1)) {
+                    if (encounter == index) {
+                        rAmtOf[x] -= amt;
+                        if (rAmtOf[x] <= 0) {
+                            removeItem({info});
+                        }
+                    }
                 }
+                else {
+                    rAmtOf[x] -= amt;
+                    if (rAmtOf[x] <= 0) {
+                        removeItem({info});
+                    }
+                }
+
+                encounter ++;
             }
         }
-        writeToFile();
+        _writeToFile();
     }
 
     std::string sortDates() {                   // Returns a string of all the dates sorted, seperated by '/'
-        _loadFile();
+        loadFile();
         bool over = false;
         std::vector<std::string> tmpNames;
         std::vector<Date> tmpDates;
@@ -225,4 +236,3 @@ struct FoodManager {
         return false;
     }
 };
-#endif

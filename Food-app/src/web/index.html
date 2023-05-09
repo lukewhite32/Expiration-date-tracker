@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Food App</title>
+        <link rel="stylesheet" href="main.css" />
+    </head>
+    <body>
+        <h1>Food App</h1>
+        <h2>For managing food and its expiration dates.</h2>
+        <p id="css-indent">_________________________________________________________________________</p>
+        <h2>Adding an item</h2>
+        <h3>Fill out the following text boxes and hit "Add item"</h3>
+        <p>Item name: </p>
+        <input type="text" id="item-name">
+        <p>Item date: </p>
+        <input type="date" id="item-date">
+        <p>Item location: </p>
+        <input type="text" id="item-loc">
+        <p>Item amount: </p>
+        <input type="number" id="item-amt">
+        <button id="button-add-item">Add item</button>
+        <h2>The items</h2>
+        <h3>All the items are below and sorted by expiration date.</h3>
+        <table id="the-table">
+            <tr>
+                <th>Name</th>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Amount</th>
+            </tr>
+        </table>
+
+        <script src="main.js"></script>
+    </body>
+</html>

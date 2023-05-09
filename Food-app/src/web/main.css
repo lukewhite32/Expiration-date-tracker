@@ -1,0 +1,9 @@
+span {
+    display: inline-block;
+    width: 15ch;
+}
+
+th, td {
+    border: 1px solid;
+    width: 23%;
+}

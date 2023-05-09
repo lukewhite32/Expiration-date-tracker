@@ -1,14 +1,9 @@
 /* The interface and TUI for the app */
+#pragma once
 
 #include <unistd.h>
 #include <ctime>
-
-#ifndef MANAGER_HPP
 #include "FoodManager.hpp"
-#endif
-
-#ifndef INTER_HPP
-#define INTER_HPP
 
 class Interface {
     FoodManager manager;
@@ -37,7 +32,7 @@ class Interface {
     }
 
     void listItems(bool inOrder = false, bool expired = false) {
-        manager._loadFile();
+        manager.loadFile();
         unsigned int amtOItems = 0;
         std::cout << std::endl << "Name                                       Expiration Date                                  Group                                       Amount" << std::endl;
         std::cout <<              "-----------------------------------------------------------------------------------------------------------------------------------------------" << std::endl;
@@ -68,13 +63,13 @@ class Interface {
     
                 if (!expired) {
                     amtOItems ++;
-                    printItem(tmpName, {pm, pd, py, false}, tmpGroup, tmpAmt);
+                    printItem(tmpName, {pm, pd, py}, tmpGroup, tmpAmt);
                 }
                 else {
                     if (tmpDate != "99/99/99") {
                         if (isExpired({pm, pd, py})) {
                             amtOItems ++;
-                            printItem(tmpName, {pm, pd, py, false}, tmpGroup, tmpAmt);
+                            printItem(tmpName, {pm, pd, py}, tmpGroup, tmpAmt);
                         }
                     }
                 }
@@ -100,11 +95,11 @@ class Interface {
         std::string name = getLine("Enter the name for the item to delete: ");
         int q = getInt("Enter the amount of items to delete: ");
 
-        if (manager._amountOf(name) > 1) {
+        if (manager.amountOf(name) > 1) {
             std::vector<Date> uniqueDates;
             std::cout << std::endl << "There are multiple kinds of that item. Select which item to delete." << std::endl << std::endl;
             std::vector<Info> items = manager.getUniqueItems(name);
-            for (int i = 0; i < manager._amountOf(name); i ++) {
+            for (int i = 0; i < manager.amountOf(name); i ++) {
                 uniqueDates.push_back(items[i].date);
                 std::cout << "(" << i << ")" << "  " << name << " (" << items[i].amt << ") : " << items[i].date.getStrDate() << std::endl;
             }
@@ -115,7 +110,7 @@ class Interface {
                 resp = getInt("Enter in the one to edit: ");
             }
             
-            manager.removeAmtOfItem({name, items[resp].date, items[resp].loc, items[resp].amt}, q);
+            manager.removeAmtOfItem({name, items[resp].date, items[resp].loc, items[resp].amt}, q, resp);
         }
         else {
             //for (int x = 0; x < std::stoi(q); x ++) {
@@ -189,16 +184,16 @@ public:
             help();
         }
         else if (command == "add item") {
-            manager._loadFile();
+            manager.loadFile();
             add();
         }
         else if (command == "list expired") {
-            manager._loadFile();
+            manager.loadFile();
             resetDates();
             listItems(true, true);
         }
         else if (command == "list items") {
-            manager._loadFile();
+            manager.loadFile();
             system("clear");
             listItems(true);
         }
@@ -233,4 +228,3 @@ public:
         }
     }
 };
-#endif
