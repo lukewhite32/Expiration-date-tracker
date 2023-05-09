@@ -45,16 +45,6 @@ class Date:
             return self.year > comp.year
         return False
 
-def removeNewLines(stringBytes):
-    return stringBytes[:4].decode()
-    """for x in range(len(stringBytes) - 1):
-        print("examining " + stringBytes[x] + stringBytes[x+1])
-        if stringBytes[x] + stringBytes[x+1] == "\n" or stringBytes[x] + stringBytes[x+1] == "\r":
-            print("counter")
-        else:
-            ret += stringBytes[x]
-    return ret"""
-
 class Client:
     def __init__(self, tup):
         self.tup = tup
