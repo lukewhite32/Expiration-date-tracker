@@ -1,7 +1,7 @@
 # Food App
 Keep track of your expiration dates through a local, telnet, or web application.
 
-Follow each readme in the `src` folder to find out how to use.
+This was a beginner coding project intended to teach me C++.  
 
 # What it does
 It allows you to add, remove, and sort food items with expiration dates.
